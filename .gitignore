@@ -18,7 +18,16 @@ venv/
 *.swp
 .DS_Store
 
-# obsidian 知识库不在此仓库（见 AGENTS.md）
+# Obsidian 知识库：只跟踪核心 markdown 笔记
+obsidian/.obsidian/
+obsidian/**/attachments/
+obsidian/**/*.png
+obsidian/**/*.jpg
+obsidian/**/*.jpeg
+obsidian/**/*.gif
+obsidian/**/*.pdf
+obsidian/**/*.svg
+
 # 敏感信息
 *.key
 *.pem
