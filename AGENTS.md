@@ -2,6 +2,13 @@
 
 本工作区是 30 天学习计划。核心产出是复刻「视觉追踪火控云台」（STM32 + OpenCV + PID），副线是 C++ 贪吃蛇。代码工作围绕主线展开；知识沉淀放 obsidian，不在本仓库。
 
+## 知识库与 Obsidian
+
+- 知识库（obsidian vault）位于 **`/home/fgh/obsidian`**（WSL 内）。结构：`30天学习 Index.md`（入口）、`每日日志/`、`模块笔记/`、`TIL/`、`术语表/`。
+- Obsidian 用 **Linux AppImage**（`~/bin/Obsidian.AppImage`）跑在 WSLg，启动需 `APPIMAGE_EXTRACT_AND_RUN=1`。官方 CLI 在 `~/.local/bin/obsidian`，**要求 Obsidian App 正在运行**才能用。
+- 教学场景用 `teach` 技能（教学工作区生成 MISSION.md/lessons/ 等，默认放 vault 内）；查/建笔记用 `obsidian-vault` 技能。
+- vault 根目录可考虑单独 git 私有仓备份；**知识不进 projects 仓库**。
+
 ## 主项目：视觉追踪火控云台
 
 - 参考开源仓库：`github.com/edythieajahgsgshwtvwywvwfd-sketch/S90_aim_ball`（用户提供的复刻对象，源码已可获取）
