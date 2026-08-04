@@ -1,0 +1,28 @@
+# AGENTS.md
+
+本工作区是 30 天学习计划。核心产出是复刻「视觉追踪火控云台」（STM32 + OpenCV + PID），副线是 C++ 贪吃蛇。代码工作围绕主线展开；知识沉淀放 obsidian，不在本仓库。
+
+## 主项目：视觉追踪火控云台
+
+- 参考开源仓库：`github.com/edythieajahgsgshwtvwywvwfd-sketch/S90_aim_ball`（用户提供的复刻对象，源码已可获取）
+  - 文件布局：`Core/`(STM32 HAL 主程序)、`Drivers/`(HAL 驱动)、`ball_track.py`(视觉追踪)、`pid.py`(PID)、`color_picker.py`(HSV 阈值调色工具)、`S90_aim_ball.ioc`(CubeMX 配置)、CMake 工程
+- 系统架构：PC(Python/OpenCV 识别橙色球 + PID) → 串口发送 `X增量,Y增量\n` → STM32F103C8T6 `sscanf` 解析 → PWM 驱动 2×SG90 舵机云台 → 激光头
+- 视觉全部跑在 PC 端（OpenCV + pyserial），STM32 端只做串口解析和 PWM 输出
+
+## 已定的技术决策（不要推翻）
+
+- STM32 工具链：**vscode + STM32CubeMX(生成代码) + CMake**。参考仓库原用 CLion+CubeMX，用户已决定改用 vscode。
+- 副线贪吃蛇：**C++**。主线 STM32 用 C(HAL)，Python 定位为工具语言（视觉/脚本），均不引入第三方学习路线。
+- 烧录器：需确认用户是否有 ST-Link V2；尚未配置（可能需采购约 10 元的 ST-Link）。
+
+## 已知坑（来自参考文章，直接相关）
+
+- SG90 舵机虚位大、有死区：需 PD 控制 + 软件死区（误差 <40px 停止调整），见参考仓库 `pid.py`。
+- 激光头与摄像头物理不重合导致打偏：需要 `OFFSET_X`/`OFFSET_Y` 视差补偿。
+- 2×SG90 需 5V/2A 独立供电，不要全从板子 USB 口取电。
+
+## 工程惯例
+
+- 无 CI/lint/测试配置，验证方式 = vscode 编译 + 烧录 + 串口观察。
+- 每天 `git commit` 作为安全网（PID 调参改坏可回退）。
+- 学习节奏：每周 5 深度日 + 2 浅度日，深度日 8h 里上午/下午给主线、晚上给贪吃蛇；浅度日只做维护性任务，不安排主线硬核内容。

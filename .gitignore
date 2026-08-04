@@ -1,0 +1,24 @@
+# 构建产物
+build/
+cmake-build-*/
+*.o
+*.elf
+*.bin
+*.hex
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# 编辑器/系统
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# obsidian 知识库不在此仓库（见 AGENTS.md）
+# 敏感信息
+*.key
+*.pem
