@@ -31,3 +31,6 @@ obsidian/**/*.svg
 # 敏感信息
 *.key
 *.pem
+
+# 参考仓库（方案 C：不纳入 git，换机重新 clone）
+S90_aim_ball/
