@@ -48,6 +48,9 @@ leader 键默认 `ctrl+x`，多数指令有快捷键。
 | 提交消息 `input_submit` | `enter` | `ctrl+enter` | Enter 改为换行、Ctrl+Enter 提交 |
 | 换行 `input_newline` | `shift+enter,ctrl+enter,alt+enter,ctrl+j` | `enter,shift+enter,alt+enter,ctrl+j` | 补上 `enter`，与提交键互换语义 |
 
+
+> [!warning] 发送消息受限
+> 本机 `input_submit` 为 `ctrl+enter`（Enter 是换行）。**普通 bash 终端不支持带修饰键的 Enter**，按 Enter / Ctrl+Enter 都会触发换行、无法发送消息。opencode 请在 VS Code 终端中使用。
 > 备注：配置文件里按键名写作 `return`（如 `input_submit: "ctrl+return"`），文档中统一用可读写法 `enter`，两者等价。
 
 ## Fork Session（分叉会话）
