@@ -50,6 +50,14 @@ leader 键默认 `ctrl+x`，多数指令有快捷键。
 
 > 备注：配置文件里按键名写作 `return`（如 `input_submit: "ctrl+return"`），文档中统一用可读写法 `enter`，两者等价。
 
+## Fork Session（分叉会话）
+
+类似 git 分支：从已有会话复制出副本再继续，新会话共享历史但从此分道扬镳，原会话保持不变。适合同一段上下文上并行尝试多条路线（如方案 A vs B）。
+
+- 不带 fork：`opencode -c` / `-s <id>` 在原会话上继续（原会话被改动）
+- 带 fork：`opencode -c --fork` / `-s <id> --fork` 复制后继续，原会话不受影响
+- TUI 内有 `session_fork` 动作但默认无快捷键（`none`），需配置绑定或走 CLI
+
 ## 备注
 
 - `/undo`、`/redo` 内部靠 Git 回滚文件改动，项目必须是 git 仓库。
