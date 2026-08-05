@@ -7,6 +7,7 @@
 - 知识库（obsidian vault）位于 **`/home/fgh/projects/obsidian`**（WSL 内，随 projects 仓库 git 管理）。结构：`30天学习 Index.md`（入口）、`每日日志/`、`模块笔记/`、`TIL/`、`术语表/`。
 - Obsidian 用 **Linux AppImage**（`~/bin/Obsidian.AppImage`）跑在 WSLg。命令行启动：`APPIMAGE_EXTRACT_AND_RUN=1 ~/bin/Obsidian.AppImage &`。官方 CLI 在 `~/.local/bin/obsidian`，**要求 Obsidian App 正在运行**才能用。
 - 教学场景用 `teach` 技能（教学工作区生成 MISSION.md/lessons/ 等，默认放 vault 内）；查/建笔记用 `obsidian-vault` 技能。
+- **Obsidian 操作约定（必须遵守）**：所有涉及 vault 的读/写操作（查笔记、建/改/删笔记、搜内容、属性/标签/反向链接等）一律通过 **obsidian CLI**（`~/.local/bin/obsidian`，需 App 运行中）和相关 skills（`obsidian-cli` / `obsidian-markdown` / `obsidian-bases` / `obsidian-vault`）执行，**禁止直接编辑/创建 vault 内的 markdown 源文件**。CLI 不可用（App 未启动）时，先启动 App 或报告用户，而非绕过规则直接改文件。
 - git 只跟踪 vault 内的 **markdown 笔记**（`.obsidian/` 配置与图片等二进制被 `.gitignore` 排除），知识随代码仓库一起备份/回退。
 
 ## 主项目：视觉追踪火控云台
