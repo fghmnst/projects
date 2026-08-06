@@ -45,13 +45,13 @@ leader 键默认 `ctrl+x`，多数指令有快捷键。
 |------|------|----------|------|
 | 命令面板 `command_list` | `ctrl+p` | `alt+p` | 避让 VS Code 快速打开文件 |
 | 收藏模型 `model_favorite_toggle` | `ctrl+f` | `alt+f` | 避让 VS Code 查找 |
-| 提交消息 `input_submit` | `enter` | `ctrl+enter` | Enter 改为换行、Ctrl+Enter 提交 |
-| 换行 `input_newline` | `shift+enter,ctrl+enter,alt+enter,ctrl+j` | `enter,shift+enter,alt+enter,ctrl+j` | 补上 `enter`，与提交键互换语义 |
+| 提交消息 `input_submit` | `enter` | `enter` | 改回 Enter 发送，适配 Windows 自带 bash 终端 |
+| 换行 `input_newline` | `shift+enter,ctrl+enter,alt+enter,ctrl+j` | `shift+enter,ctrl+enter,alt+enter,ctrl+j` | 恢复默认 |
 
 
-> [!warning] 发送消息受限
-> 本机 `input_submit` 为 `ctrl+enter`（Enter 是换行）。**普通 bash 终端不支持带修饰键的 Enter**，按 Enter / Ctrl+Enter 都会触发换行、无法发送消息。opencode 请在 VS Code 终端中使用。
-> 备注：配置文件里按键名写作 `return`（如 `input_submit: "ctrl+return"`），文档中统一用可读写法 `enter`，两者等价。
+> [!note] 发送键说明
+> 因windows自带的bash终端有多开的特性，后期会遇到需要频繁使用win端bash中opencode的情况，故将发送的快捷键改回enter，但其他改为alt系的快捷键不做更改。
+> 备注：配置文件里按键名写作 `return`（如 `input_submit: "return"`），文档中统一用可读写法 `enter`，两者等价。
 
 ## Fork Session（分叉会话）
 
