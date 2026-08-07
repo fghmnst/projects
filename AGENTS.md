@@ -41,6 +41,7 @@
 - 改 `.env`/`config.yaml` 后必须重启 gateway 生效（pkill 技巧）；验证 `hermes doctor` + 日志。
 - 日志：`~/.hermes/logs/gateway.log`（连接/消息）、`agent.log`（cron 执行/投递）；推送成功标志 = `grep "delivered to qqbot" ~/.hermes/logs/agent.log`。
 - 详细部署与排障见 `TIL/Hermes 云部署指南（QQ 每日推送）.md`；用户操作见 `TIL/tmux 共享终端操作手册.md`。
+- **指挥 Hermes 优先用 `hermes-ops` skill**（`~/.agents/skills/hermes-ops/SKILL.md`，覆盖常用指令与本机约定）；skill 未覆盖的查 Hermes 官方文档（CLI 参考：`hermes-agent.nousresearch.com/docs/zh-Hans/reference/cli-commands`）。
 
 ### 每日联动
 - 用户每晚 commit 每日日志 → 次日 7:00 cron 推送依赖 `git pull` 拉到最新日志（不提交就读不到）。
