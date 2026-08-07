@@ -174,6 +174,45 @@ grep "delivered to qqbot" ~/.hermes/logs/agent.log   # 确认投递成功
 | QQ 主动消息配额 | 官方对机器人主动推送有限额，某天没收到先查日志 |
 | 换 provider | `hermes model`，与部署无关，随时可改 |
 
+## 附：tmux 共享终端（opencode ↔ 用户协作）
+
+**用途**：opencode agent 与用户共用服务器上一个常驻终端——agent 注入命令（send-keys）、用户 attach 实时观看并可随时亲手操作。2026-08-07 部署验证通过。
+
+**架构**：tmux 常驻服务器，会话名 `work`；agent 通过 `ssh server2 'tmux send-keys ...'` 操作，用户 `ssh -t server2 tmux attach -t work` 附着。
+
+**初始化**（服务器重启后重跑）：
+
+```bash
+tmux new-session -d -s work -c /home/fghmnst/projects
+tmux set-option -t work history-limit 10000
+tmux set-option -t work remain-on-exit on
+```
+
+**agent 操作模板**：
+
+```bash
+ssh server2 'tmux send-keys -t work "git pull; echo __DONE__" Enter'   # 注入命令+哨兵
+ssh server2 'tmux capture-pane -t work -p -S -50'                       # 读输出
+ssh server2 'tmux respawn-pane -t work'                                 # pane shell 退出后复活
+```
+
+**用户操作**：
+
+```bash
+ssh -t server2 tmux attach -t work     # 附着观看/交互（-t 必须有）
+# Ctrl-b d 脱离（会话不消失）；logout 会让 pane 的 shell 退出，用 respawn-pane 复活
+```
+
+**并发锁**（打字前占锁，agent 检测到即停手）：
+
+```bash
+ssh server2 'touch ~/.tmux-hold'       # 占锁（打字前）
+ssh server2 'test -f ~/.tmux-hold && echo HELD || echo FREE'   # agent 检查
+ssh server2 'rm ~/.tmux-hold'          # 释放（打完字）
+```
+
+**注意事项**：会话不随断连消失，仅服务器重启丢失（重建见初始化命令）；复杂命令先写脚本 scp 过去再在 tmux 里执行，避免转义问题。
+
 ## 附录：daily-digest 任务 prompt（可复现）
 
 ```
