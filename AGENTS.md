@@ -17,6 +17,34 @@
 - 系统架构：PC(Python/OpenCV 识别橙色球 + PID) → 串口发送 `X增量,Y增量\n` → STM32F103C8T6 `sscanf` 解析 → PWM 驱动 2×SG90 舵机云台 → 激光头
 - 视觉全部跑在 PC 端（OpenCV + pyserial），STM32 端只做串口解析和 PWM 输出
 
+## 云端服务器（server2）工作流
+
+### 连接
+- 别名 `ssh server2`（`~/.ssh/config`：`[IP_REDACTED]` / `fghmnst` / 22，已配 ControlMaster 连接复用）；WSL 与 Windows 共用同一把 ed25519 密钥，免密登录。
+- **非交互 ssh 的 PATH 坑**：`hermes` 不在 PATH，`sudo` 也不含 `~/.local/bin`——一律写全路径 `~/.local/bin/hermes`（tmux 在 `/usr/bin` 无碍）。
+- 服务器 **sudo 需要密码**（无免密），涉及 sudo 的操作交用户手动执行。
+
+### 服务器现役设施（2026-08-07 部署）
+- **Hermes Agent**：provider `minimax-cn`（密钥在 `~/.hermes/.env`，非密钥配置在 `~/.hermes/config.yaml`）。
+- **Hermes Gateway**：systemd 系统服务 `hermes-gateway`（开机自启）。**免 sudo 重启技巧**：`pkill -f "hermes_cli.main gateway"` → systemd 自动拉起（~30s），新进程读新配置。
+- **QQ 机器人 Kricyan_Hermes**（AppID `1905371061`）：私聊白名单仅用户 OpenID `[QQ_OPENID_REDACTED]`；cron 投递目标 = `QQBOT_HOME_CHANNEL`（同 OpenID）。
+- **cron 任务 `daily-digest`**（`0 7 * * *`，`--deliver qqbot --workdir /home/fghmnst/projects`）：git pull → 读昨日日志 → 生成「昨日小结+今日待办」→ 推 QQ。
+- **`~/projects`**：GitHub 私有仓库 `fghmnst/projects` 的 clone（服务器专用 GitHub 密钥，公钥已加账号）。
+- **tmux 会话 `work`**：cwd `~/projects`，`history-limit 10000`，`remain-on-exit on`。
+
+### 远程操作约定（必须遵守）
+- **日常操作优先走 tmux**：注入 = `ssh server2 'tmux send-keys -t work "cmd; echo __DONE__" Enter'`；读输出 = `ssh server2 'tmux capture-pane -t work -p -S -50'`；轮询哨兵 `__DONE__` 确认完成。
+- **并发锁**：操作前先 `ssh server2 'test -f ~/.tmux-hold && echo HELD || echo FREE'`，`HELD` 表示用户正在打字，**必须停手等待**；用户打字前会 touch 锁、打完 rm 锁。锁存在期间绝不 send-keys。
+- 复杂命令（含 `"` `$` 反引号）先写脚本 scp 到服务器 `/tmp`，再在 tmux 里执行，避免转义问题。
+- pane 显示 `Pane is dead`：`tmux respawn-pane -t work` 复活（用户 Ctrl+D 属正常操作，非故障）。
+- 服务器重启后 tmux 会话丢失：重建 = `tmux new-session -d -s work -c /home/fghmnst/projects` + 两条 `set-option`（见 TIL 手册）。
+- 改 `.env`/`config.yaml` 后必须重启 gateway 生效（pkill 技巧）；验证 `hermes doctor` + 日志。
+- 日志：`~/.hermes/logs/gateway.log`（连接/消息）、`agent.log`（cron 执行/投递）；推送成功标志 = `grep "delivered to qqbot" ~/.hermes/logs/agent.log`。
+- 详细部署与排障见 `TIL/Hermes 云部署指南（QQ 每日推送）.md`；用户操作见 `TIL/tmux 共享终端操作手册.md`。
+
+### 每日联动
+- 用户每晚 commit 每日日志 → 次日 7:00 cron 推送依赖 `git pull` 拉到最新日志（不提交就读不到）。
+
 ## 已定的技术决策（不要推翻）
 
 - STM32 工具链：**vscode + STM32CubeMX(生成代码) + CMake**。参考仓库原用 CLion+CubeMX，用户已决定改用 vscode。
