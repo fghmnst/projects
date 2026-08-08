@@ -14,6 +14,20 @@
 - [[模块笔记/PID控制]]
 - [[模块笔记/舵机 PWM]]
 
+## 副线：C++ 贪吃蛇课程（markdown 教学）
+
+- 入口：[[贪吃蛇课程/MISSION.md|贪吃蛇任务书]]
+- 课程：[[贪吃蛇课程/lessons/0001-工具链与第一个程序|Lesson 0001 工具链与第一个程序]]
+- 速查表：[[贪吃蛇课程/reference/0001-编译与第一个程序速查|编译命令与 cout]]
+- 术语表：[[贪吃蛇课程/reference/术语表|贪吃蛇术语表]]
+
+## 主线：STM32 火控云台课程（markdown 教学）
+
+- 入口：[[教学-STM32/MISSION.md|STM32 任务书]]
+- 术语表：[[教学-STM32/reference/术语表|STM32 术语表]]
+- 课程：[教学-STM32/lessons](教学-STM32/lessons/)（随主线逐课产出）
+- 学习记录：[教学-STM32/learning-records](教学-STM32/learning-records/)
+
 ## 坑记录 TIL
 
 - [[TIL]]
