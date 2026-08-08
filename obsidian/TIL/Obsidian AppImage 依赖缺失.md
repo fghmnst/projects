@@ -26,4 +26,4 @@ sudo apt install -y libnspr4 libnss3 libasound2t64
 - AppImage 在无 libfuse2 的系统（如 24.04）需 `APPIMAGE_EXTRACT_AND_RUN=1` 运行。
 - 官方 CLI 在 `~/.local/bin/obsidian`，要求 App 正在运行。
 
-相关：[[30天学习 Index]] · [[术语表]]
+相关：[[30天学习 Index]] · [[术语表/术语表|术语表]]

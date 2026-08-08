@@ -36,4 +36,4 @@
 - 首次使用需在命令面板执行 `Translate Pro: Login`，到 translate.yanxuewen.cn 注册登录。
 - Hover 翻译默认覆盖 `c/h/cpp/py` 等主流语言文件（配置 `Translate-next.hover.extensions`，设 `*` 可对所有文件生效）。
 
-相关：[[30天学习 Index]] · [[术语表]]
+相关：[[30天学习 Index]] · [[术语表/术语表|术语表]]

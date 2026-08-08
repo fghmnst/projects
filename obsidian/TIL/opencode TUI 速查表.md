@@ -67,4 +67,4 @@ leader 键默认 `ctrl+x`，多数指令有快捷键。
 - `/editor`、`/export` 依赖 `EDITOR` 环境变量，GUI 编辑器需加 `--wait`（如 `export EDITOR="code --wait"`）。
 - TUI 行为配置在 `tui.json`（独立于 `opencode.json`），可调主题、快捷键、滚动、通知。
 
-相关：[[30天学习 Index]] · [[术语表]]
+相关：[[30天学习 Index]] · [[术语表/术语表|术语表]]

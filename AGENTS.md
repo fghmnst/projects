@@ -4,7 +4,7 @@
 
 ## 知识库与 Obsidian
 
-- 知识库（obsidian vault）位于 **`/home/fgh/projects/obsidian`**（WSL 内，随 projects 仓库 git 管理）。结构：`30天学习 Index.md`（入口）、`每日日志/`、`模块笔记/`、`TIL/`、`术语表/`。
+- 知识库（obsidian vault）位于 **`/home/fgh/projects/obsidian`**（WSL 内，随 projects 仓库 git 管理）。结构：`30天学习 Index.md`（入口）、`每日日志/`、`教学-STM32/`（主线教学 workspace）、`教学-贪吃蛇/`（副线教学 workspace）、`模块笔记/`、`TIL/`、`术语表/`。**目录约定**：每个目录有同名索引笔记（如 `术语表/术语表.md`）；Wikilink 一律写**显式路径**（如 `[[术语表/术语表|术语表]]`），不要用短名——vault 存在多个同名笔记（两个教学 workspace 各有 MISSION/NOTES/术语表），短名会歧义。
 - Obsidian 用 **Linux AppImage**（`~/bin/Obsidian.AppImage`）跑在 WSLg。命令行启动：`APPIMAGE_EXTRACT_AND_RUN=1 ~/bin/Obsidian.AppImage &`。官方 CLI 在 `~/.local/bin/obsidian`，**要求 Obsidian App 正在运行**才能用。
 - 教学场景用 `teach` 技能（教学工作区生成 MISSION.md/lessons/ 等，默认放 vault 内）；查/建笔记用 `obsidian-vault` 技能。
 - **Obsidian 操作约定（必须遵守）**：涉及 vault 的读/写操作（查笔记、建/改/删笔记、搜内容、属性/标签/反向链接等）**优先使用 obsidian CLI**（`~/.local/bin/obsidian`，需 App 运行中）和相关 skills（`obsidian-cli` / `obsidian-markdown` / `obsidian-bases` / `obsidian-vault`）；但**编辑纯 markdown 文本时可直接修改 markdown 源文件**，仅当涉及双向链接（wikilinks）等 Obsidian 特色功能时必须使用 obsidian CLI。CLI 不可用（App 未启动）时，先启动 App 或报告用户。

@@ -241,4 +241,4 @@ ssh server2 'rm ~/.tmux-hold'          # 释放（打完字）
 | Cron | 定时任务；Hermes 的 cron 由 gateway 每 60 秒 tick 检查触发 |
 | systemd | Linux 的服务管理器，保证进程开机自启、崩溃自动拉起 |
 
-相关：[[30天学习 Index]] · [[术语表]] · [[opencode TUI 速查表]]
+相关：[[30天学习 Index]] · [[术语表/术语表|术语表]] · [[opencode TUI 速查表]]
