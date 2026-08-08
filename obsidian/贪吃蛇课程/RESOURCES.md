@@ -12,6 +12,10 @@
   一页速览 C++ 全语法。Use for: 复习与查漏，与我们的速查表互为印证。
 - [g++ 手册（GCC 文档）](https://gcc.gnu.org/onlinedocs/gcc-13.3.0/gcc/)
   编译器选项权威来源。Use for: 0001 课编译命令的核实（-Wall、-std 等）。
+- [GNU Make 手册](https://www.gnu.org/software/make/manual/make.html)
+  构建工具 make 的权威文档。Use for: 0008 Makefile 课的规则/变量/依赖核实。
+- [CMake 官方教程](https://cmake.org/cmake/help/latest/guide/tutorial/)
+  循序渐进官方案例（Step 1-3 足够本课程）。Use for: 0011 CMake 加餐课；进阶参考主线 CubeMX 生成的 CMakeLists.txt 做对照。
 
 ## Wisdom (Communities)
 
