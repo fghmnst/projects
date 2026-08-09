@@ -33,7 +33,7 @@
 - **tmux 会话 `work`**：cwd `~/projects`，`history-limit 10000`，`remain-on-exit on`。
 
 ### 远程操作约定（必须遵守）
-- **日常操作优先走 tmux**：注入 = `ssh server2 'tmux send-keys -t work "cmd; echo __DONE__" Enter'`；读输出 = `ssh server2 'tmux capture-pane -t work -p -S -50'`；轮询哨兵 `__DONE__` 确认完成。
+- **执行方式（读走直连、写走 tmux）**：只读查询类（ls/cat 日志、hermes status|logs|sessions、git log|status、capture-pane 等）直接 `ssh server2 'cmd'`——快、输出干净、不污染共享终端；**写操作**（改配置、git commit/push、重启 gateway、cron 增删改、文件操作）与**长任务**（>30s：doctor、cron run、批量处理）一律 tmux 注入 = `ssh server2 'tmux send-keys -t work "cmd; echo __DONE__" Enter'` + capture-pane 读回 + 轮询哨兵 `__DONE__`，用户全程可见；用户明确要求可见时，任何操作都改走 tmux。执行路径（直连/注入）在回复中注明。
 - **并发锁**：操作前先 `ssh server2 'test -f ~/.tmux-hold && echo HELD || echo FREE'`，`HELD` 表示用户正在打字，**必须停手等待**；用户打字前会 touch 锁、打完 rm 锁。锁存在期间绝不 send-keys。
 - 复杂命令（含 `"` `$` 反引号）先写脚本 scp 到服务器 `/tmp`，再在 tmux 里执行，避免转义问题。
 - pane 显示 `Pane is dead`：`tmux respawn-pane -t work` 复活（用户 Ctrl+D 属正常操作，非故障）。
