@@ -32,13 +32,15 @@
 - **非交互 ssh 的 PATH 坑**：`hermes` 不在 PATH，`sudo` 也不含 `~/.local/bin`——一律写全路径 `~/.local/bin/hermes`（tmux 在 `/usr/bin` 无碍）。
 - 服务器 **sudo 需要密码**（无免密），涉及 sudo 的操作交用户手动执行。
 
-### 服务器现役设施（2026-08-07 部署）
-- **Hermes Agent**：provider `minimax-cn`（密钥在 `~/.hermes/.env`，非密钥配置在 `~/.hermes/config.yaml`）。
-- **Hermes Gateway**：systemd 系统服务 `hermes-gateway`（开机自启）。**免 sudo 重启技巧**：`pkill -f "hermes_cli.main gateway"` → systemd 自动拉起（~30s），新进程读新配置。
-- **飞书机器人**（2026-08-10 起启用，QQ/微信已停用——QQ markdown 仅支持受限子集、微信有 24h 主动消息限制，见 TIL 指南「平台选型」）：凭据 `FEISHU_APP_ID/SECRET`（`~/.hermes/.env`）；私聊白名单 `FEISHU_ALLOWED_USERS`；home_channel 在 `config.yaml` 的 `platforms.feishu`。
+### 服务器现役设施（2026-08-10 现状，飞书时代）
+- **Hermes Agent**：provider `deepseek`，模型 `deepseek-v4-flash`（密钥在 `~/.hermes/.env`，非密钥配置在 `~/.hermes/config.yaml`）。
+- **Hermes Gateway**：systemd 系统服务 `hermes-gateway`（开机自启）。**免 sudo 重启技巧**：`pkill -f "hermes_cli.main gateway"` → systemd 自动拉起（~30s），新进程读新配置；网关状态 `systemctl status hermes-gateway`。
+- **飞书机器人**（2026-08-10 起启用，当前唯一消息平台——QQ markdown 仅支持受限子集、微信有 24h 主动消息限制，见 TIL 指南「平台选型」）：平台 `feishu`，**WebSocket 长连接模式（无需公网入口）**；凭据 `FEISHU_APP_ID/SECRET`（`~/.hermes/.env`）；私聊白名单 `FEISHU_ALLOWED_USERS=[FEISHU_UID_REDACTED]`；home channel `[FEISHU_CHAT_REDACTED]`（`config.yaml` 的 `platforms.feishu`）；飞书消息按 post 富文本渲染，markdown 自动降级纯文本（渲染失败不会乱码）。
+- **QQ / 微信：已停用**（2026-08-10 迁移至飞书）：config.yaml `enabled: false` + .env 凭据已注释，备份在 `~/.hermes/.env.bak-[DATE_REDACTED]`。**不要重新启用**，除非用户明确要求。
+- **文件系统检查点**：已启用（`checkpoints.enabled: true`），Hermes 对话内 `/rollback` 可恢复被改坏的文件。
 - **cron 任务 `daily-digest`**（`0 7 * * *`，`--deliver feishu --workdir /home/fghmnst/projects`）：git pull → 读昨日日志 → 生成「昨日小结+今日待办」→ 推飞书。
 - **`~/projects`**：GitHub 私有仓库 `fghmnst/projects` 的 clone（服务器专用 GitHub 密钥，公钥已加账号）。
-- **tmux 会话 `work`**：cwd `~/projects`，`history-limit 10000`，`remain-on-exit on`。
+- **tmux 会话 `work`：已废弃**（agent 不再注入，会话当前不存在）；用户自用可随时按 TIL 手册重建（cwd `~/projects`，`history-limit 10000`）。
 
 ### 远程操作约定（必须遵守）
 - **执行方式（一律直连，不走 tmux；Hermes 除外）**：非 Hermes 的服务器操作（查询/写操作/长任务）一律 `ssh server2 'cmd'` 直接执行，不做 tmux send-keys 注入——tmux 展示方案已废弃（拖累效率、状态判定困难）。执行路径（直连/脚本）在回复中注明。
@@ -50,6 +52,7 @@
 
 ### 每日联动
 - 用户每晚 commit 每日日志 → 次日 7:00 cron 推送依赖 `git pull` 拉到最新日志（不提交就读不到）。
+- 修改 vault 内容后应顺手 `git commit` 作为安全网（与 Hermes 云端约定一致）。
 
 ## 已定的技术决策（不要推翻）
 
