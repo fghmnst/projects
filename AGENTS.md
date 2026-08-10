@@ -16,7 +16,7 @@
 - Obsidian 用 **Linux AppImage**（`~/bin/Obsidian.AppImage`）跑在 WSLg。命令行启动：`APPIMAGE_EXTRACT_AND_RUN=1 ~/bin/Obsidian.AppImage &`。官方 CLI 在 `~/.local/bin/obsidian`，**要求 Obsidian App 正在运行**才能用。
 - 教学场景用 `teach` 技能（教学工作区生成 MISSION.md/lessons/ 等，默认放 vault 内）；查/建笔记用 `obsidian-vault` 技能。
 - **Obsidian 操作约定（必须遵守）**：涉及 vault 的读/写操作（查笔记、建/改/删笔记、搜内容、属性/标签/反向链接等）**优先使用 obsidian CLI**（`~/.local/bin/obsidian`，需 App 运行中）和相关 skills（`obsidian-cli` / `obsidian-markdown` / `obsidian-bases` / `obsidian-vault`）；但**编辑纯 markdown 文本时可直接修改 markdown 源文件**，仅当涉及双向链接（wikilinks）等 Obsidian 特色功能时必须使用 obsidian CLI。CLI 不可用（App 未启动）时，先启动 App 或报告用户。
-- git 只跟踪 vault 内的 **markdown 笔记**（`.obsidian/` 配置与图片等二进制被 `.gitignore` 排除），知识随代码仓库一起备份/回退。
+- git 跟踪 vault 内的 **markdown 笔记 + `.obsidian/` 配置**（核心插件开关/主题/快捷键/插件数据随仓库跨设备同步，双链等特色功能换机即还原；仅 `workspace.json`/`cache/` 等设备相关文件被 `.gitignore` 排除）；图片等二进制仍排除（当前 0 附件，若未来启用需评估体积）。
 
 ## 主项目：视觉追踪火控云台
 

@@ -18,8 +18,11 @@ venv/
 *.swp
 .DS_Store
 
-# Obsidian 知识库：只跟踪核心 markdown 笔记
-obsidian/.obsidian/
+# Obsidian 知识库：跟踪核心 markdown 笔记 + .obsidian/ 双链生态配置
+# （核心插件开关/主题/快捷键/插件数据跨设备同步；仅排除设备相关运行时文件）
+obsidian/.obsidian/workspace.json
+obsidian/.obsidian/workspace-mobile.json
+obsidian/.obsidian/cache/
 obsidian/**/attachments/
 obsidian/**/*.png
 obsidian/**/*.jpg
