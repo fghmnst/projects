@@ -33,12 +33,8 @@
 - **tmux 会话 `work`**：cwd `~/projects`，`history-limit 10000`，`remain-on-exit on`。
 
 ### 远程操作约定（必须遵守）
-- **执行方式（读走直连、写走 tmux）**：只读查询类（ls/cat 日志、git log|status、capture-pane 等）直接 `ssh server2 'cmd'`——快、输出干净、不污染共享终端；**写操作**（改配置、git commit/push、重启 gateway、cron 增删改、文件操作）与**长任务**（>30s：doctor、cron run、批量处理）一律 tmux 注入 = `ssh server2 'tmux send-keys -t work "cmd; echo __DONE__" Enter'` + capture-pane 读回 + 轮询哨兵 `__DONE__`，用户全程可见；用户明确要求可见时，任何操作都改走 tmux。执行路径（直连/注入）在回复中注明。
-- **hermes 例外（可见性优先）**：涉及 hermes 的一切操作（status/logs/cron/sessions/chat 及各类查询）一律注入 tmux **`work:hermes`** 窗口执行（对话 = `~/.local/bin/hermes chat -q "问题" -Q`，续聊加 `-c`；查询 = `cmd; echo __DONE__`），用户实时看到完整「指令 → Hermes 回复」；该窗口输出已由 `tmux pipe-pane` 落盘 `~/.hermes/tmux-hermes.log` 可回查。仅非 hermes 操作维持读走直连/写走 tmux。
-- **并发锁**：操作前先 `ssh server2 'test -f ~/.tmux-hold && echo HELD || echo FREE'`，`HELD` 表示用户正在打字，**必须停手等待**；用户打字前会 touch 锁、打完 rm 锁。锁存在期间绝不 send-keys。
-- 复杂命令（含 `"` `$` 反引号）先写脚本 scp 到服务器 `/tmp`，再在 tmux 里执行，避免转义问题。
-- pane 显示 `Pane is dead`：`tmux respawn-pane -t work` 复活（用户 Ctrl+D 属正常操作，非故障）。
-- 服务器重启后 tmux 会话丢失：重建 = `tmux new-session -d -s work -c /home/fghmnst/projects` + 两条 `set-option`（见 TIL 手册）。
+- **执行方式（一律直连，不走 tmux；Hermes 除外）**：非 Hermes 的服务器操作（查询/写操作/长任务）一律 `ssh server2 'cmd'` 直接执行，不做 tmux send-keys 注入——tmux 展示方案已废弃（拖累效率、状态判定困难）。执行路径（直连/脚本）在回复中注明。
+- **Hermes 操作（命令化交付，用户执行）**：所有对 Hermes 的操作（查询/对话/写操作/cron/gateway 等）一律由 agent 输出可复制的命令行 + 验证手段，**用户手动执行并反馈结果**，agent 不直接执行 hermes 命令。对话类：agent 提供现成脚本（prompt 写入本地 → scp 到服务器 → 用户执行 `bash /tmp/hermes_chat.sh`）。复杂命令（含引号 `"` `$` 反引号）agent 先写脚本文件，用户仅执行脚本。
 - 改 `.env`/`config.yaml` 后必须重启 gateway 生效（pkill 技巧）；验证 `hermes doctor` + 日志。
 - 日志：`~/.hermes/logs/gateway.log`（连接/消息）、`agent.log`（cron 执行/投递）；推送成功标志 = `grep "delivered to qqbot" ~/.hermes/logs/agent.log`。
 - 详细部署与排障见 `TIL/Hermes 云部署指南（QQ 每日推送）.md`；用户操作见 `TIL/tmux 共享终端操作手册.md`。
@@ -51,7 +47,7 @@
 
 - STM32 工具链：**vscode + STM32CubeMX(生成代码) + CMake**。参考仓库原用 CLion+CubeMX，用户已决定改用 vscode。
 - 副线贪吃蛇：**C++**。主线 STM32 用 C(HAL)，Python 定位为工具语言（视觉/脚本），均不引入第三方学习路线。
-- 烧录器：需确认用户是否有 ST-Link V2；尚未配置（可能需采购约 10 元的 ST-Link）。
+- 烧录器：用户已有 ST-Link V2（SWD 烧录，2026-08-08 确认）。烧录通路：usbipd-win 直通 WSL（Plan B：Windows 侧 CubeProgrammer CLI，永不阻塞）。
 
 ## 已知坑（来自参考文章，直接相关）
 
