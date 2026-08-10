@@ -35,7 +35,7 @@
 ### 服务器现役设施（2026-08-07 部署）
 - **Hermes Agent**：provider `minimax-cn`（密钥在 `~/.hermes/.env`，非密钥配置在 `~/.hermes/config.yaml`）。
 - **Hermes Gateway**：systemd 系统服务 `hermes-gateway`（开机自启）。**免 sudo 重启技巧**：`pkill -f "hermes_cli.main gateway"` → systemd 自动拉起（~30s），新进程读新配置。
-- **飞书机器人**（2026-08-10 起启用，QQ/微信已停用）：凭据 `FEISHU_APP_ID/SECRET`（`~/.hermes/.env`）；私聊白名单 `FEISHU_ALLOWED_USERS`；home_channel 在 `config.yaml` 的 `platforms.feishu`。
+- **飞书机器人**（2026-08-10 起启用，QQ/微信已停用——QQ markdown 仅支持受限子集、微信有 24h 主动消息限制，见 TIL 指南「平台选型」）：凭据 `FEISHU_APP_ID/SECRET`（`~/.hermes/.env`）；私聊白名单 `FEISHU_ALLOWED_USERS`；home_channel 在 `config.yaml` 的 `platforms.feishu`。
 - **cron 任务 `daily-digest`**（`0 7 * * *`，`--deliver feishu --workdir /home/fghmnst/projects`）：git pull → 读昨日日志 → 生成「昨日小结+今日待办」→ 推飞书。
 - **`~/projects`**：GitHub 私有仓库 `fghmnst/projects` 的 clone（服务器专用 GitHub 密钥，公钥已加账号）。
 - **tmux 会话 `work`**：cwd `~/projects`，`history-limit 10000`，`remain-on-exit on`。
@@ -45,7 +45,7 @@
 - **Hermes 操作（命令化交付，用户执行）**：所有对 Hermes 的操作（查询/对话/写操作/cron/gateway 等）一律由 agent 输出可复制的命令行 + 验证手段，**用户手动执行并反馈结果**，agent 不直接执行 hermes 命令。对话类：agent 提供现成脚本（prompt 写入本地 → scp 到服务器 → 用户执行 `bash /tmp/hermes_chat.sh`）。复杂命令（含引号 `"` `$` 反引号）agent 先写脚本文件，用户仅执行脚本。
 - 改 `.env`/`config.yaml` 后必须重启 gateway 生效（pkill 技巧）；验证 `hermes doctor` + 日志。
 - 日志：`~/.hermes/logs/gateway.log`（连接/消息）、`agent.log`（cron 执行/投递）；推送成功标志 = `grep "delivered to feishu" ~/.hermes/logs/agent.log`。
-- 详细部署与排障见 `TIL/Hermes 云部署指南（QQ 每日推送）.md`（内容基于 QQ 时代，飞书相关章节待更新）；用户操作见 `TIL/tmux 共享终端操作手册.md`。
+- 详细部署与排障见 `TIL/Hermes 云部署指南（飞书每日推送）.md`；用户操作见 `TIL/tmux 共享终端操作手册.md`。
 - **指挥 Hermes 优先用 `hermes-ops` skill**（`~/.agents/skills/hermes-ops/SKILL.md`，覆盖常用指令与本机约定）；skill 未覆盖的查 Hermes 官方文档（CLI 参考：`hermes-agent.nousresearch.com/docs/zh-Hans/reference/cli-commands`）。
 
 ### 每日联动

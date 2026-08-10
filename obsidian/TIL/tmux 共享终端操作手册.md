@@ -106,6 +106,6 @@ ssh server2 'rm ~/.tmux-hold'             # 释放（打完字）
 
 ## 七、关联
 
-- [[Hermes 云部署指南（QQ 每日推送）]]（含 tmux 部署命令与 agent 操作模板）
+- [[TIL/Hermes 云部署指南（飞书每日推送）|Hermes 云部署指南]]
 - [[30天学习 Index]]
 - [[术语表/术语表|术语表]]
