@@ -20,7 +20,7 @@
 
 ## 主项目：视觉追踪火控云台
 
-- 参考开源仓库：`github.com/edythieajahgsgshwtvwywvwfd-sketch/S90_aim_ball`（用户提供的复刻对象，源码已可获取）
+- 参考开源仓库（复刻对象）：`github.com/edythieajahgsgshwtvwywvwfd-sketch/S90_aim_ball`，本地 git clone 位于 **`~/S90_aim_ball`**（工作区外——2026-08-10 移出 `projects/`：其含独立 CMake 工程，留在工作区会触发 VS Code STM32 扩展「多个 CMake 项目」误报；代码不随本仓库 git 管理）
   - 文件布局：`Core/`(STM32 HAL 主程序)、`Drivers/`(HAL 驱动)、`ball_track.py`(视觉追踪)、`pid.py`(PID)、`color_picker.py`(HSV 阈值调色工具)、`S90_aim_ball.ioc`(CubeMX 配置)、CMake 工程
 - 系统架构：PC(Python/OpenCV 识别橙色球 + PID) → 串口发送 `X增量,Y增量\n` → STM32F103C8T6 `sscanf` 解析 → PWM 驱动 2×SG90 舵机云台 → 激光头
 - 视觉全部跑在 PC 端（OpenCV + pyserial），STM32 端只做串口解析和 PWM 输出
