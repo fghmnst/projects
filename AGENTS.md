@@ -29,7 +29,7 @@
 
 ### 连接
 - 别名 `ssh server2`（`~/.ssh/config`：`[IP_REDACTED]` / `fghmnst` / 22，已配 ControlMaster 连接复用）；WSL 与 Windows 共用同一把 ed25519 密钥，免密登录。
-- **非交互 ssh 的 PATH 坑**：`hermes` 不在 PATH，`sudo` 也不含 `~/.local/bin`——一律写全路径 `~/.local/bin/hermes`（tmux 在 `/usr/bin` 无碍）。
+- **非交互 ssh 的 PATH 坑**：`hermes` 不在 PATH，`sudo` 也不含 `~/.local/bin`——一律写全路径 `~/.local/bin/hermes`。
 - 服务器 **sudo 需要密码**（无免密），涉及 sudo 的操作交用户手动执行。
 
 ### 服务器现役设施（2026-08-10 现状，飞书时代）
@@ -40,14 +40,13 @@
 - **文件系统检查点**：已启用（`checkpoints.enabled: true`），Hermes 对话内 `/rollback` 可恢复被改坏的文件。
 - **cron 任务 `daily-digest`**（`0 7 * * *`，`--deliver feishu --workdir /home/fghmnst/projects`）：git pull → 读昨日日志 → 生成「昨日小结+今日待办」→ 推飞书。
 - **`~/projects`**：GitHub 私有仓库 `fghmnst/projects` 的 clone（服务器专用 GitHub 密钥，公钥已加账号）。
-- **tmux 会话 `work`：已废弃**（agent 不再注入，会话当前不存在）；用户自用可随时按 TIL 手册重建（cwd `~/projects`，`history-limit 10000`）。
 
 ### 远程操作约定（必须遵守）
-- **执行方式（一律直连，不走 tmux；Hermes 除外）**：非 Hermes 的服务器操作（查询/写操作/长任务）一律 `ssh server2 'cmd'` 直接执行，不做 tmux send-keys 注入——tmux 展示方案已废弃（拖累效率、状态判定困难）。执行路径（直连/脚本）在回复中注明。
-- **Hermes 操作（命令化交付，用户执行）**：所有对 Hermes 的操作（查询/对话/写操作/cron/gateway 等）一律由 agent 输出可复制的命令行 + 验证手段，**用户手动执行并反馈结果**，agent 不直接执行 hermes 命令。对话类：agent 提供现成脚本（prompt 写入本地 → scp 到服务器 → 用户执行 `bash /tmp/hermes_chat.sh`）。复杂命令（含引号 `"` `$` 反引号）agent 先写脚本文件，用户仅执行脚本。
-- 改 `.env`/`config.yaml` 后必须重启 gateway 生效（pkill 技巧）；验证 `hermes doctor` + 日志。
+- **服务器操作一律只读**：agent 仅可 `ssh server2 'cmd'` 执行**只读命令**（ls/cat/grep/tail/git log/git status/git diff/ss/ps/日志查询等，不修改服务器任何状态），执行路径（直连）在回复中注明。
+- **一切写操作命令化交付（用户执行）**：凡会修改服务器状态的操作——文件写/改配置、`git pull`/commit 等 git 写操作、重启 gateway、cron 增删改、hermes 命令（查询/对话/写操作）——一律由 agent 输出可复制的命令行 + 验证手段，**用户手动执行并反馈结果**，agent 不直接执行。复杂命令（含引号 `"` `$` 反引号）agent 先写脚本文件，用户仅执行脚本。
+- 改 `.env`/`config.yaml` 后必须重启 gateway 生效（pkill 技巧，命令化交付）；验证 `hermes doctor` + 日志。
 - 日志：`~/.hermes/logs/gateway.log`（连接/消息）、`agent.log`（cron 执行/投递）；推送成功标志 = `grep "delivered to feishu" ~/.hermes/logs/agent.log`。
-- 详细部署与排障见 `TIL/Hermes 云部署指南（飞书每日推送）.md`；用户操作见 `TIL/tmux 共享终端操作手册.md`。
+- 详细部署与排障见 `TIL/Hermes 云部署指南（飞书每日推送）.md`。
 - **指挥 Hermes 优先用 `hermes-ops` skill**（`~/.agents/skills/hermes-ops/SKILL.md`，覆盖常用指令与本机约定）；skill 未覆盖的查 Hermes 官方文档（CLI 参考：`hermes-agent.nousresearch.com/docs/zh-Hans/reference/cli-commands`）。
 
 ### 每日联动
