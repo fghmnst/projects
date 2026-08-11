@@ -25,14 +25,11 @@
 - 系统架构：PC(Python/OpenCV 识别橙色球 + PID) → 串口发送 `X增量,Y增量\n` → STM32F103C8T6 `sscanf` 解析 → PWM 驱动 2×SG90 舵机云台 → 激光头
 - 视觉全部跑在 PC 端（OpenCV + pyserial），STM32 端只做串口解析和 PWM 输出
 
-## 练习项目：DianDengMaster（CubeMX 点灯）
+## 练习项目：DDM_test（CubeMX 点灯）
 
-- 位置：**`DianDengMaster/`**（工作区内，随仓库 git 管理；2026-08-11 接入，CubeMX 生成，STM32F103C8Tx + HAL + CMake 工具链，FW F1 V1.8.7）。**以后 STM32 项目的编辑都在这个文件夹（及其同类结构）里进行。**
-- **结构坑（重要）**：CubeMX 配置 `UnderRoot=false` + `ToolChainLocation=DianDengMaster` 导致**一个项目拆两个目录**：
-  - 源码根 = `DianDengMaster/`：`Core/`(Src/Inc)、`Drivers/`(HAL + CMSIS)、`DianDengMaster.ioc`、`.mxproject`
-  - CMake 工程根 = **嵌套 `DianDengMaster_1/`**：`CMakeLists.txt`、`CMakePresets.json`、`startup_stm32f103xb.s`、`STM32F103xx_FLASH.ld`、`cmake/stm32cubemx/CMakeLists.txt`（经 `../../../Core` 相对路径引用源码）
-  - 二者是**同一个工程**，改代码在项目根 `Core/Drivers`，构建入口在 `DianDengMaster_1/`
-- **VS Code 嵌入式工作流**：直接 `code ~/projects/DianDengMaster` 打开该文件夹做编译/烧录；**不要在 `projects/` 根窗口做嵌入式开发**（嵌套 CMake 根会再次触发「多个 CMake 项目」误报，见「已知坑」）。CubeMX 重新生成时保持 `ToolChainLocation=DianDengMaster` 即可，生成后目录结构不变。
+- 位置：**`DDM_test/`**（工作区内，随仓库 git 管理；2026-08-11 接入，CubeMX 生成，STM32F103C8Tx + HAL + CMake 工具链，FW F1 V1.8.7；同日由 DianDengMaster 改名而来，`.ioc` 工程名同步为 `DDM_test`）。**以后 STM32 项目的编辑都在这个文件夹（及其同类结构）里进行。**
+- **结构（单层，已消除旧坑）**：CMake 文件全在工程根——`CMakeLists.txt`、`CMakePresets.json`、`startup_stm32f103xb.s`、`STM32F103xx_FLASH.ld`、`cmake/`（含 `stm32cubemx/CMakeLists.txt`，经 `../..` 相对路径引用 `Core/`）；源码 `Core/`(Src/Inc)、`Drivers/`(HAL + CMSIS)、`DDM_test.ioc`、`.mxproject` 同根。改代码在工程根 `Core/Drivers`，构建入口也是工程根。*旧坑回顾*：此前 `UnderRoot=false` + `ToolChainLocation=DianDengMaster` 曾拆出嵌套 `DianDengMaster_1/` CMake 根（源码根 + `_1` 构建根两个目录）；2026-08-11 重生成后变回单层，`.ioc` 里 `UnderRoot=false` 仍在但实际目录已是单层——**以实际目录为准**。
+- **VS Code 嵌入式工作流**：直接 `code ~/projects/DDM_test` 打开该文件夹做编译/烧录；**不要在 `projects/` 根窗口做嵌入式开发**（见「已知坑」）。
 - `build/` 等构建产物已被 `.gitignore` 排除。
 
 ## 云端服务器（server2）工作流
@@ -71,7 +68,7 @@
 
 ## 已知坑（来自参考文章，直接相关）
 
-- **VS Code STM32 扩展「多个 CMake 项目」误报（2026-08-11 更新）**：曾因 `S90_aim_ball` 留在工作区触发（2026-08-10 移出 `~/` 解决一半）；现在的新元凶是 **DianDengMaster 的嵌套 CMake 根**——工作区根扫描到 `DianDengMaster.ioc`（源码根）+ `DianDengMaster_1/CMakeLists.txt` + 嵌套 `cmake/stm32cubemx/CMakeLists.txt`，扩展无法确定项目根。**解法：嵌入式开发一律用 `code ~/projects/DianDengMaster` 单独开窗**，projects/ 根窗口只做文档。误报不破坏编译，主要影响：IntelliSense 拿不到 HAL 头文件（红色波浪线）、一键编译/烧录按钮可能指向错误项目。
+- **VS Code STM32 扩展「多个 CMake 项目」误报（2026-08-11 更新）**：曾因 `S90_aim_ball` 留在工作区触发（2026-08-10 移出 `~/` 解决一半）；之后新元凶是 DianDengMaster 的嵌套 `DianDengMaster_1/` CMake 根——2026-08-11 重生成为单层 `DDM_test/` 后此元凶已消除。**仍要注意**：projects/ 根窗口下含 `.ioc` + `CMakeLists.txt` 的子文件夹（如 `DDM_test/`）仍会被扩展扫成独立 CMake 工程。**解法：嵌入式开发一律用 `code ~/projects/DDM_test` 单独开窗**，projects/ 根窗口只做文档。误报不破坏编译，主要影响：IntelliSense 拿不到 HAL 头文件（红色波浪线）、一键编译/烧录按钮可能指向错误项目。
 - SG90 舵机虚位大、有死区：需 PD 控制 + 软件死区（误差 <40px 停止调整），见参考仓库 `pid.py`。
 - 激光头与摄像头物理不重合导致打偏：需要 `OFFSET_X`/`OFFSET_Y` 视差补偿。
 - 2×SG90 需 5V/2A 独立供电，不要全从板子 USB 口取电。
