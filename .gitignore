@@ -6,6 +6,9 @@ cmake-build-*/
 *.bin
 *.hex
 
+# STM32Cube 扩展 runtime 状态（bundles 锁定信息等，可由 cube bundle init 重建）
+.settings/
+
 # Python
 __pycache__/
 *.pyc
