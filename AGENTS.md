@@ -65,7 +65,7 @@
 
 - STM32 工具链：**vscode + STM32CubeMX(生成代码) + CMake**。参考仓库原用 CLion+CubeMX，用户已决定改用 vscode。
 - 副线贪吃蛇：**C++**。主线 STM32 用 C(HAL)，Python 定位为工具语言（视觉/脚本），均不引入第三方学习路线。
-- 烧录器：用户已有 ST-Link V2（SWD 烧录，2026-08-08 确认）。烧录通路：usbipd-win 直通 WSL（Plan B：Windows 侧 CubeProgrammer CLI，永不阻塞）。
+- 烧录器：用户已有 ST-Link V2（SWD 烧录，2026-08-08 确认）。烧录通路：usbipd-win 直通 WSL，**用 WSL-dashboard（`Owu.WSLDashboard`，GUI 集成 usbipd，UI 一键 attach，2026-08-12 起启用）**（Plan B：Windows 侧 CubeProgrammer CLI，永不阻塞）。
 
 ## 已知坑（来自参考文章，直接相关）
 
@@ -76,7 +76,7 @@
 - **STM32Cube 扩展 v3.10 `.settings` 坑家族（2026-08-11/12 踩实）**：扩展是 STM32CubeIDE 新架构（`stm32cube-ide-*` 共 13 个扩展），bundles-manager 激活即读工程上下文 `.settings/bundles.store.json`，纯 CubeMX-CMake 工程未初始化时会报 `ENOENT .settings/ide.store.json`，且「设置 STM32Cube 项目」命令**灰色不可点**（enablement `isCubeCMakeProject` 未满足，discovery 失败静默）。兜底：`cube bundle init --project`（WSL 端，建 `.settings/bundles.store.json`）+ 手补 `ide.store.json`（`{}`）+ 远程用户设置 `~/.vscode-server/data/User/settings.json` 里 `"stm32cube-ide-build-cmake.project-setup.incubationWebview": false`。重启电脑后扩展会自动补全（已验证自愈）。**禁止跨平台复制 `.settings/`**：Windows 生成的 bundles 文件带 `platform: darwin` 标记，WSL 端解析异常；且复制瞬间空文件会触发 `doStepSettingsValidation Failed: ... Unexpected end of JSON input`（JSON 异常被透传成 device 名）。`.settings/` 已 gitignore。
 - **C8T6 蓝板板载用户 LED 实测在 PC13**（出厂固件闪的灯；PA1 无板载 LED，资料常误标）。廉价蓝板 LED 引脚厂牌不一，未知时用「脉冲定位法」：扫引脚程序（15 候选引脚轮流 0.5s）→ 数秒 → 脉冲计数（亮 0.5s + 高阻 1.5s 间隔，数第几个脉冲）→ 锁定。PC13 低电平点亮，注意 GPIOC 时钟 `__HAL_RCC_GPIOC_CLK_ENABLE()`。
 - **DDM_test 工程不自动生成 .bin**：CubeMX CMake 模板默认只产 .elf；烧录前手动 `arm-none-eabi-objcopy -O binary build/Debug/DDM_test.elf build/Debug/DDM_test.bin`（或给 CMakeLists 加 post-build 根治）。
-- **usbipd 重启后失效**：Windows 重启后需管理员 PowerShell 重新 `usbipd attach --wsl --busid <id>`（bind 一般保留）；WSL 侧验证 `lsusb` 见 `0483:3748`。
+- **usbipd 重启后失效**：Windows 重启后需重新 attach（bind 一般保留）。**推荐用 WSL-dashboard 图形化管理**：打开 WSL-dashboard（`Owu.WSLDashboard`）→ USB 页 → 选中 ST-Link → Attach，一键直通，无需管理员 PowerShell；命令行兜底 `usbipd attach --wsl --busid <id>`。WSL 侧验证 `lsusb` 见 `0483:3748`。
 
 ## 每日日志规范
 
