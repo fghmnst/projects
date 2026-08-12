@@ -30,6 +30,7 @@
 - 位置：**`DDM_test/`**（工作区内，随仓库 git 管理；2026-08-11 接入，CubeMX 生成，STM32F103C8Tx + HAL + CMake 工具链，FW F1 V1.8.7；同日由 DianDengMaster 改名而来，`.ioc` 工程名同步为 `DDM_test`）。**以后 STM32 项目的编辑都在这个文件夹（及其同类结构）里进行。**
 - **结构（单层，已消除旧坑）**：CMake 文件全在工程根——`CMakeLists.txt`、`CMakePresets.json`、`startup_stm32f103xb.s`、`STM32F103xx_FLASH.ld`、`cmake/`（含 `stm32cubemx/CMakeLists.txt`，经 `../..` 相对路径引用 `Core/`）；源码 `Core/`(Src/Inc)、`Drivers/`(HAL + CMSIS)、`DDM_test.ioc`、`.mxproject` 同根。改代码在工程根 `Core/Drivers`，构建入口也是工程根。*旧坑回顾*：此前 `UnderRoot=false` + `ToolChainLocation=DianDengMaster` 曾拆出嵌套 `DianDengMaster_1/` CMake 根（源码根 + `_1` 构建根两个目录）；2026-08-11 重生成后变回单层，`.ioc` 里 `UnderRoot=false` 仍在但实际目录已是单层——**以实际目录为准**。
 - **VS Code 嵌入式工作流**：直接 `code ~/projects/DDM_test` 打开该文件夹做编译/烧录；**不要在 `projects/` 根窗口做嵌入式开发**（见「已知坑」）。
+- **LED 引脚现状**：`main.h` 已手改 `LED_Pin=GPIO_PIN_13`（PC13 板载，实测），**`.ioc` 仍配 PA6 未同步**——下次 CubeMX 重新生成前必须先改 .ioc 把 LED 挪到 PC13，否则宏被覆盖回 PA6。
 - `build/` 等构建产物已被 `.gitignore` 排除。
 
 ## 云端服务器（server2）工作流
@@ -72,6 +73,10 @@
 - SG90 舵机虚位大、有死区：需 PD 控制 + 软件死区（误差 <40px 停止调整），见参考仓库 `pid.py`。
 - 激光头与摄像头物理不重合导致打偏：需要 `OFFSET_X`/`OFFSET_Y` 视差补偿。
 - 2×SG90 需 5V/2A 独立供电，不要全从板子 USB 口取电。
+- **STM32Cube 扩展 v3.10 `.settings` 坑家族（2026-08-11/12 踩实）**：扩展是 STM32CubeIDE 新架构（`stm32cube-ide-*` 共 13 个扩展），bundles-manager 激活即读工程上下文 `.settings/bundles.store.json`，纯 CubeMX-CMake 工程未初始化时会报 `ENOENT .settings/ide.store.json`，且「设置 STM32Cube 项目」命令**灰色不可点**（enablement `isCubeCMakeProject` 未满足，discovery 失败静默）。兜底：`cube bundle init --project`（WSL 端，建 `.settings/bundles.store.json`）+ 手补 `ide.store.json`（`{}`）+ 远程用户设置 `~/.vscode-server/data/User/settings.json` 里 `"stm32cube-ide-build-cmake.project-setup.incubationWebview": false`。重启电脑后扩展会自动补全（已验证自愈）。**禁止跨平台复制 `.settings/`**：Windows 生成的 bundles 文件带 `platform: darwin` 标记，WSL 端解析异常；且复制瞬间空文件会触发 `doStepSettingsValidation Failed: ... Unexpected end of JSON input`（JSON 异常被透传成 device 名）。`.settings/` 已 gitignore。
+- **C8T6 蓝板板载用户 LED 实测在 PC13**（出厂固件闪的灯；PA1 无板载 LED，资料常误标）。廉价蓝板 LED 引脚厂牌不一，未知时用「脉冲定位法」：扫引脚程序（15 候选引脚轮流 0.5s）→ 数秒 → 脉冲计数（亮 0.5s + 高阻 1.5s 间隔，数第几个脉冲）→ 锁定。PC13 低电平点亮，注意 GPIOC 时钟 `__HAL_RCC_GPIOC_CLK_ENABLE()`。
+- **DDM_test 工程不自动生成 .bin**：CubeMX CMake 模板默认只产 .elf；烧录前手动 `arm-none-eabi-objcopy -O binary build/Debug/DDM_test.elf build/Debug/DDM_test.bin`（或给 CMakeLists 加 post-build 根治）。
+- **usbipd 重启后失效**：Windows 重启后需管理员 PowerShell 重新 `usbipd attach --wsl --busid <id>`（bind 一般保留）；WSL 侧验证 `lsusb` 见 `0483:3748`。
 
 ## 每日日志规范
 
