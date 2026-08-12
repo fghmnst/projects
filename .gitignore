@@ -9,6 +9,9 @@ cmake-build-*/
 # STM32Cube 扩展 runtime 状态（bundles 锁定信息等，可由 cube bundle init 重建）
 .settings/
 
+# clangd 编译数据库配置（指向 build/ 的本机路径，跨设备无意义）
+.clangd
+
 # Python
 __pycache__/
 *.pyc
