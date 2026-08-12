@@ -1,3 +1,4 @@
+powershell中 wsl --shut down 即可
 # 坑：Obsidian GUI 启动失败（obsidian-gui 不出窗口）
 
 **日期**：2026-08-11
