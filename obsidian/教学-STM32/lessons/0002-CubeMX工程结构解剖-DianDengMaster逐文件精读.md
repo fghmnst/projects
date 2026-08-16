@@ -756,6 +756,7 @@ Drivers/CMSIS/Include                        # core_cm3.h
 
 - 上一课：[[教学-STM32/lessons/0001-工具链闭环与LED闪烁|0001 工具链闭环与 LED 闪烁]]
 - 下一课：[[教学-STM32/lessons/0003-PWM控制舵机|0003 · PWM 控制舵机]]（SG90 转角 = 脉宽映射，里程碑：舵机转起来）
+- 精读笔记：[[教学-STM32/reference/0002b-stm32f1xx_hal.h逐行精读与C语法复习|0002b · stm32f1xx_hal.h 逐行精读 + C 语法复习]]
 - 术语表：[[教学-STM32/reference/术语表|STM32 课程术语表]]
 - 任务书：[[教学-STM32/MISSION.md|Mission]]
 - 速查表：[[教学-STM32/reference/0001-工具链速查|工具链速查表]]
