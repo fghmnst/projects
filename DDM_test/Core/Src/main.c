@@ -11,11 +11,11 @@ int main(void)
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-    // Main loop
+    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, GPIO_PIN_RESET);
+
     while (1)
     {
-      HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_0); // Toggle the LED
-      HAL_Delay(500); // Delay for 500 milliseconds
-        // Your application code here
+        HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_0);
+        HAL_Delay(500);
     }
 }
