@@ -11,11 +11,9 @@ int main(void)
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, GPIO_PIN_SET);
 
     while (1)
     {
-        HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_0);
-        HAL_Delay(500);
     }
 }
