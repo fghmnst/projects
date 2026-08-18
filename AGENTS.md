@@ -2,10 +2,6 @@
 
 本工作区是 30 天学习计划。核心产出是复刻「视觉追踪火控云台」（STM32 + OpenCV + PID），副线是 C++ 贪吃蛇。代码工作围绕主线展开；知识沉淀放 obsidian，不在本仓库。
 
-## 输出格式约定
-
-- 列表编号一律用 ASCII `(1)` `(2)` `(3)`，**不用带圈数字 `①②③`**（U+2460 区段）——用户终端主字体缺这些字形，回退渲染会竖直压扁（2026-08-16 决策）。全角数字、全角标点同理尽量避免。
-
 ## Agent 职责边界（opencode vs Hermes）
 
 - 本文件是**本机 opencode 专属指令**（WSL 内 `/home/fgh/projects`），仅供 opencode 读取执行。
@@ -29,13 +25,14 @@
 - 系统架构：PC(Python/OpenCV 识别橙色球 + PID) → 串口发送 `X增量,Y增量\n` → STM32F103C8T6 `sscanf` 解析 → PWM 驱动 2×SG90 舵机云台 → 激光头
 - 视觉全部跑在 PC 端（OpenCV + pyserial），STM32 端只做串口解析和 PWM 输出
 
-## 练习项目：DDM_test（CubeMX 点灯）
+## 练习项目：DianDengMaster（CubeMX 点灯）
 
-- 位置：**`DDM_test/`**（工作区内，随仓库 git 管理；2026-08-11 接入，CubeMX 生成，STM32F103C8Tx + HAL + CMake 工具链，FW F1 V1.8.7；同日由 DianDengMaster 改名而来，`.ioc` 工程名同步为 `DDM_test`）。**以后 STM32 项目的编辑都在这个文件夹（及其同类结构）里进行。**
-- **结构（单层，已消除旧坑）**：CMake 文件全在工程根——`CMakeLists.txt`、`CMakePresets.json`、`startup_stm32f103xb.s`、`STM32F103xx_FLASH.ld`、`cmake/`（含 `stm32cubemx/CMakeLists.txt`，经 `../..` 相对路径引用 `Core/`）；源码 `Core/`(Src/Inc)、`Drivers/`(HAL + CMSIS)、`DDM_test.ioc`、`.mxproject` 同根。改代码在工程根 `Core/Drivers`，构建入口也是工程根。*旧坑回顾*：此前 `UnderRoot=false` + `ToolChainLocation=DianDengMaster` 曾拆出嵌套 `DianDengMaster_1/` CMake 根（源码根 + `_1` 构建根两个目录）；2026-08-11 重生成后变回单层，`.ioc` 里 `UnderRoot=false` 仍在但实际目录已是单层——**以实际目录为准**。
-- **VS Code 嵌入式工作流**：直接 `code ~/projects/DDM_test` 打开该文件夹做编译/烧录；**不要在 `projects/` 根窗口做嵌入式开发**（见「已知坑」）。
-- **代码模式（2026-08-14 决策，暂定）**：**全权手改代码**——不再用 CubeMX 重新生成，`.ioc` 冻结作废（保留仅作历史参考/未来恢复用）；加外设 = 手写 HAL 初始化 + 手动挂进 CMake；USER CODE 区段纪律不再必要。
-- **LED 引脚现状**：`main.h` 手改 `LED_Pin=GPIO_PIN_13`（PC13 板载，实测，低电平点亮）——纯手改模式下以代码为准，无被覆盖风险。
+- 位置：**`DianDengMaster/`**（工作区内，随仓库 git 管理；2026-08-11 接入，CubeMX 生成，STM32F103C8Tx + HAL + CMake 工具链，FW F1 V1.8.7）。**以后 STM32 项目的编辑都在这个文件夹（及其同类结构）里进行。**
+- **结构坑（重要）**：CubeMX 配置 `UnderRoot=false` + `ToolChainLocation=DianDengMaster` 导致**一个项目拆两个目录**：
+  - 源码根 = `DianDengMaster/`：`Core/`(Src/Inc)、`Drivers/`(HAL + CMSIS)、`DianDengMaster.ioc`、`.mxproject`
+  - CMake 工程根 = **嵌套 `DianDengMaster_1/`**：`CMakeLists.txt`、`CMakePresets.json`、`startup_stm32f103xb.s`、`STM32F103xx_FLASH.ld`、`cmake/stm32cubemx/CMakeLists.txt`（经 `../../../Core` 相对路径引用源码）
+  - 二者是**同一个工程**，改代码在项目根 `Core/Drivers`，构建入口在 `DianDengMaster_1/`
+- **VS Code 嵌入式工作流**：直接 `code ~/projects/DianDengMaster` 打开该文件夹做编译/烧录；**不要在 `projects/` 根窗口做嵌入式开发**（嵌套 CMake 根会再次触发「多个 CMake 项目」误报，见「已知坑」）。CubeMX 重新生成时保持 `ToolChainLocation=DianDengMaster` 即可，生成后目录结构不变。
 - `build/` 等构建产物已被 `.gitignore` 排除。
 
 ## 云端服务器（server2）工作流
@@ -68,20 +65,16 @@
 
 ## 已定的技术决策（不要推翻）
 
-- STM32 工具链：**vscode + CMake + HAL**。参考仓库原用 CLion+CubeMX，用户已决定改用 vscode；CubeMX 仅用于一次性生成初始工程（2026-08-11 完成），**此后全权手改代码，不再用 CubeMX 重新生成**（2026-08-14 决策，暂定可逆：`.ioc` 保留，未来若需恢复 CubeMX 工作流可重新启用）。
+- STM32 工具链：**vscode + STM32CubeMX(生成代码) + CMake**。参考仓库原用 CLion+CubeMX，用户已决定改用 vscode。
 - 副线贪吃蛇：**C++**。主线 STM32 用 C(HAL)，Python 定位为工具语言（视觉/脚本），均不引入第三方学习路线。
-- 烧录器：用户已有 ST-Link V2（SWD 烧录，2026-08-08 确认）。烧录通路：usbipd-win 直通 WSL，**用 WSL-dashboard（`Owu.WSLDashboard`，GUI 集成 usbipd，UI 一键 attach，2026-08-12 起启用）**（Plan B：Windows 侧 CubeProgrammer CLI，永不阻塞）。
+- 烧录器：用户已有 ST-Link V2（SWD 烧录，2026-08-08 确认）。烧录通路：usbipd-win 直通 WSL（Plan B：Windows 侧 CubeProgrammer CLI，永不阻塞）。
 
 ## 已知坑（来自参考文章，直接相关）
 
-- **VS Code STM32 扩展「多个 CMake 项目」误报（2026-08-11 更新）**：曾因 `S90_aim_ball` 留在工作区触发（2026-08-10 移出 `~/` 解决一半）；之后新元凶是 DianDengMaster 的嵌套 `DianDengMaster_1/` CMake 根——2026-08-11 重生成为单层 `DDM_test/` 后此元凶已消除。**仍要注意**：projects/ 根窗口下含 `.ioc` + `CMakeLists.txt` 的子文件夹（如 `DDM_test/`）仍会被扩展扫成独立 CMake 工程。**解法：嵌入式开发一律用 `code ~/projects/DDM_test` 单独开窗**，projects/ 根窗口只做文档。误报不破坏编译，主要影响：IntelliSense 拿不到 HAL 头文件（红色波浪线）、一键编译/烧录按钮可能指向错误项目。
+- **VS Code STM32 扩展「多个 CMake 项目」误报（2026-08-11 更新）**：曾因 `S90_aim_ball` 留在工作区触发（2026-08-10 移出 `~/` 解决一半）；现在的新元凶是 **DianDengMaster 的嵌套 CMake 根**——工作区根扫描到 `DianDengMaster.ioc`（源码根）+ `DianDengMaster_1/CMakeLists.txt` + 嵌套 `cmake/stm32cubemx/CMakeLists.txt`，扩展无法确定项目根。**解法：嵌入式开发一律用 `code ~/projects/DianDengMaster` 单独开窗**，projects/ 根窗口只做文档。误报不破坏编译，主要影响：IntelliSense 拿不到 HAL 头文件（红色波浪线）、一键编译/烧录按钮可能指向错误项目。
 - SG90 舵机虚位大、有死区：需 PD 控制 + 软件死区（误差 <40px 停止调整），见参考仓库 `pid.py`。
 - 激光头与摄像头物理不重合导致打偏：需要 `OFFSET_X`/`OFFSET_Y` 视差补偿。
 - 2×SG90 需 5V/2A 独立供电，不要全从板子 USB 口取电。
-- **禁止跨平台复制 `.settings/`**（2026-08-11/12 踩实）：Windows 生成的 bundles 文件带 `platform: darwin` 标记，WSL 端解析异常；且复制瞬间空文件会触发 `doStepSettingsValidation Failed: ... Unexpected end of JSON input`（JSON 异常被透传成 device 名）。`.settings/` 现已被 git 跟踪（`.gitignore` 写的是 `!.settings`，2026-08-12 起 bundles.store.json 等随仓库同步）；早期 ENOENT/灰色按钮等初始化问题已自愈，不再赘述。
-- **C8T6 蓝板板载用户 LED 实测在 PC13**（出厂固件闪的灯；PA1 无板载 LED，资料常误标）。廉价蓝板 LED 引脚厂牌不一，未知时用「脉冲定位法」：扫引脚程序（15 候选引脚轮流 0.5s）→ 数秒 → 脉冲计数（亮 0.5s + 高阻 1.5s 间隔，数第几个脉冲）→ 锁定。PC13 低电平点亮，注意 GPIOC 时钟 `__HAL_RCC_GPIOC_CLK_ENABLE()`。
-- **DDM_test 工程不自动生成 .bin**：CubeMX CMake 模板默认只产 .elf；烧录前手动 `arm-none-eabi-objcopy -O binary build/Debug/DDM_test.elf build/Debug/DDM_test.bin`（或给 CMakeLists 加 post-build 根治）。
-- **usbipd 重启后失效**：Windows 重启后需重新 attach（bind 一般保留）。**推荐用 WSL-dashboard 图形化管理**：打开 WSL-dashboard（`Owu.WSLDashboard`）→ USB 页 → 选中 ST-Link → Attach，一键直通，无需管理员 PowerShell；命令行兜底 `usbipd attach --wsl --busid <id>`。WSL 侧验证 `lsusb` 见 `0483:3748`。
 
 ## 每日日志规范
 
@@ -100,4 +93,4 @@
 - 无 CI/lint/测试配置，验证方式 = vscode 编译 + 烧录 + 串口观察。
 - 每天 `git commit` 作为安全网（PID 调参改坏可回退）。
 - **安装指令一律给命令行，让用户自行安装**（除非用户特殊说明，如明确要求 agent 代装）：涉及任何安装（WSL apt / Windows winget / 浏览器下载 / 插件等），只输出可复制的命令行给用户执行，不代为安装。每条安装指令必须附带：① **验证手段**（验证命令或检查清单）；② **可能遇到的问题**（坑与对应解法，含 Plan B 降级路径）。参考模板：`教学-STM32/lessons/0001` 第四节「动手 1：安装工具链」。
-- 学习节奏：每周 5 深度日 + 2 浅度日，深度日 8h 里上午/下午给主线、晚上给贪吃蛇；浅度日只做维护性任务，不安排主线硬核内容。**（2026-08-14 起贪吃蛇副线暂停，深度日晚上留给主线复盘/休息，恢复条件见 `教学-贪吃蛇/课程路线.md` 顶部）**
+- 学习节奏：每周 5 深度日 + 2 浅度日，深度日 8h 里上午/下午给主线、晚上给贪吃蛇；浅度日只做维护性任务，不安排主线硬核内容。
