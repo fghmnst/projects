@@ -12,7 +12,7 @@
 
 ## 知识库与 Obsidian
 
-- 知识库（obsidian vault）位于 **`/home/fgh/projects/obsidian`**（WSL 内，随 projects 仓库 git 管理）。结构：`30天学习 Index.md`（入口）、`每日日志/`、`教学-STM32/`（主线教学 workspace）、`教学-贪吃蛇/`（副线教学 workspace）、`模块笔记/`、`TIL/`、`术语表/`。**目录约定**：每个目录有同名索引笔记（如 `术语表/术语表.md`）；Wikilink 一律写**显式路径**（如 `[[术语表/术语表|术语表]]`），不要用短名——vault 存在多个同名笔记（两个教学 workspace 各有 MISSION/NOTES/术语表），短名会歧义。
+- 知识库（obsidian vault）位于 **`/home/fgh/projects/obsidian`**（WSL 内，随 projects 仓库 git 管理）。结构：`30天学习 Index.md`（入口）、`每日日志/`、`教学-STM32/`（主线教学 workspace）、`教学-贪吃蛇/`（副线教学 workspace）、`模块笔记/`、`TIL/`、`术语表/`、`归档/`（历史文档，2026-08-19 创建）。**目录约定**：每个目录有同名索引笔记（如 `术语表/术语表.md`）；Wikilink 一律写**显式路径**（如 `[[术语表/术语表|术语表]]`），不要用短名——vault 存在多个同名笔记（两个教学 workspace 各有 MISSION/NOTES/术语表），短名会歧义。
 - Obsidian 用 **Linux AppImage**（`~/bin/Obsidian.AppImage`）跑在 WSLg。命令行启动（`~/.bashrc` alias `obsidian-gui`，2026-08-11 加固版）：`nohup env APPIMAGE_EXTRACT_AND_RUN=1 ~/bin/Obsidian.AppImage >/tmp/obsidian.log 2>&1 &`——**必须**带 nohup + 输出重定向：AppImage 以 `&` 后台跑但不脱离终端时，会被作业控制信号挂起（进程 T 态、GUI 不弹出）；`[WARN:COPY MODE]` 是 AppImage runtime 的良性提示（解压运行而非 FUSE 挂载，因 alias 强制 `APPIMAGE_EXTRACT_AND_RUN=1`），不影响启动。官方 CLI 在 `~/.local/bin/obsidian`，**要求 Obsidian App 正在运行**才能用。
 - 教学场景用 `teach` 技能（教学工作区生成 MISSION.md/lessons/ 等，默认放 vault 内）；查/建笔记用 `obsidian-vault` 技能。
 - **Obsidian 操作约定（必须遵守）**：涉及 vault 的读/写操作（查笔记、建/改/删笔记、搜内容、属性/标签/反向链接等）**优先使用 obsidian CLI**（`~/.local/bin/obsidian`，需 App 运行中）和相关 skills（`obsidian-cli` / `obsidian-markdown` / `obsidian-bases` / `obsidian-vault`）；但**编辑纯 markdown 文本时可直接修改 markdown 源文件**，仅当涉及双向链接（wikilinks）等 Obsidian 特色功能时必须使用 obsidian CLI。CLI 不可用（App 未启动）时，先启动 App 或报告用户。
@@ -25,15 +25,20 @@
 - 系统架构：PC(Python/OpenCV 识别橙色球 + PID) → 串口发送 `X增量,Y增量\n` → STM32F103C8T6 `sscanf` 解析 → PWM 驱动 2×SG90 舵机云台 → 激光头
 - 视觉全部跑在 PC 端（OpenCV + pyserial），STM32 端只做串口解析和 PWM 输出
 
-## 练习项目：DianDengMaster（CubeMX 点灯）
+## 练习项目：DDM_test（CubeMX 点灯 → 双舵机串口测试固件）
 
-- 位置：**`DianDengMaster/`**（工作区内，随仓库 git 管理；2026-08-11 接入，CubeMX 生成，STM32F103C8Tx + HAL + CMake 工具链，FW F1 V1.8.7）。**以后 STM32 项目的编辑都在这个文件夹（及其同类结构）里进行。**
-- **结构坑（重要）**：CubeMX 配置 `UnderRoot=false` + `ToolChainLocation=DianDengMaster` 导致**一个项目拆两个目录**：
-  - 源码根 = `DianDengMaster/`：`Core/`(Src/Inc)、`Drivers/`(HAL + CMSIS)、`DianDengMaster.ioc`、`.mxproject`
-  - CMake 工程根 = **嵌套 `DianDengMaster_1/`**：`CMakeLists.txt`、`CMakePresets.json`、`startup_stm32f103xb.s`、`STM32F103xx_FLASH.ld`、`cmake/stm32cubemx/CMakeLists.txt`（经 `../../../Core` 相对路径引用源码）
-  - 二者是**同一个工程**，改代码在项目根 `Core/Drivers`，构建入口在 `DianDengMaster_1/`
-- **VS Code 嵌入式工作流**：直接 `code ~/projects/DianDengMaster` 打开该文件夹做编译/烧录；**不要在 `projects/` 根窗口做嵌入式开发**（嵌套 CMake 根会再次触发「多个 CMake 项目」误报，见「已知坑」）。CubeMX 重新生成时保持 `ToolChainLocation=DianDengMaster` 即可，生成后目录结构不变。
+- 位置：**`DDM_test/`**（工作区内，随仓库 git 管理；2026-08-11 以 DianDengMaster 之名接入，**2026-08-19 改名 DDM_test 并删除旧目录 DianDengMaster/**，git 历史中仍可找回）。CubeMX 生成，STM32F103C8Tx + HAL + CMake 工具链，FW F1 V1.8.7。**以后 STM32 项目的编辑都在这个文件夹（及其同类结构）里进行。**
+- **当前结构（2026-08-19 更新）**：CMake 工程根 = 项目根（**平铺，无嵌套**）：根目录即 `CMakeLists.txt`、`CMakePresets.json`、`startup_stm32f103xb.s`、`STM32F103xx_FLASH.ld`、`cmake/stm32cubemx/CMakeLists.txt`，加 `Core/`、`Drivers/`、`DDM_test.ioc`。构建入口：`cmake --build build/Debug`（VS Code 的 CMake 扩展也可）。旧版嵌套 `DianDengMaster_1/` 结构已随改名消失。
+- **当前外设配置（2026-08-19）**：HSE 8MHz ×9 = 72MHz；TIM2 CH1(PA0)=X 舵机、CH2(PA1)=Y 舵机（Prescaler 71 / Period 19999 / Pulse 1500 → 50Hz 舵机 PWM）；USART1(PA9/PA10) 115200 轮询接收，协议 `X增量,Y增量\n`（`sscanf` 解析，限位 500–2500）。烧录用 ST-Link（launch.json 已配 ST-Link GDB）。
+- **VS Code 嵌入式工作流**：直接 `code ~/projects/DDM_test` 打开该文件夹做编译/烧录；**不要在 `projects/` 根窗口做嵌入式开发**（误报见「已知坑」）。CubeMX 重新生成时保持 `ToolChainLocation=DDM_test` 即可。
 - `build/` 等构建产物已被 `.gitignore` 排除。
+
+## PC 端工具：fire_control/
+
+- 位置：**`fire_control/`**（工作区内，随仓库 git 管理；2026-08-19 创建）。
+- 内容：主项目（火控云台）PC 端脚本。当前：`servo_test.py`（WASD 双舵机测试，termios 单键读取 + FLIP_X/FLIP_Y 方向翻转 + STEP 步长；运行 `python3 fire_control/servo_test.py`）。未来 ball_track.py / pid.py 的复刻版也放这里。
+- **参考仓库 `~/S90_aim_ball` 已设为只读（2026-08-19，`chmod -R a-w`）**：只做阅读参考，不再直接修改；需要其代码时复刻到本仓库。恢复写权限：`chmod -R u+w ~/S90_aim_ball`。
+- **WSL 串口权限**：CH340 → `/dev/ttyUSB0`，需 `dialout` 组（`sudo usermod -aG dialout $USER` 后重新登录生效）；临时绕过用 `sudo chmod 666 /dev/ttyUSB0`（设备重新枚举后失效）。
 
 ## 云端服务器（server2）工作流
 
@@ -71,7 +76,7 @@
 
 ## 已知坑（来自参考文章，直接相关）
 
-- **VS Code STM32 扩展「多个 CMake 项目」误报（2026-08-11 更新）**：曾因 `S90_aim_ball` 留在工作区触发（2026-08-10 移出 `~/` 解决一半）；现在的新元凶是 **DianDengMaster 的嵌套 CMake 根**——工作区根扫描到 `DianDengMaster.ioc`（源码根）+ `DianDengMaster_1/CMakeLists.txt` + 嵌套 `cmake/stm32cubemx/CMakeLists.txt`，扩展无法确定项目根。**解法：嵌入式开发一律用 `code ~/projects/DianDengMaster` 单独开窗**，projects/ 根窗口只做文档。误报不破坏编译，主要影响：IntelliSense 拿不到 HAL 头文件（红色波浪线）、一键编译/烧录按钮可能指向错误项目。
+- **VS Code STM32 扩展「多个 CMake 项目」误报（2026-08-19 更新）**：曾因 `S90_aim_ball` 留在工作区触发（2026-08-10 移出 `~/` 解决一半）、DianDengMaster 嵌套 CMake 根触发（2026-08-11）。2026-08-19 改名 DDM_test 后工程 CMake 根已平铺（无嵌套），且旧 DianDengMaster 目录已删除，工作区现在只剩一个 `.ioc`——误报根源已消除。**约定保留：嵌入式开发仍用 `code ~/projects/DDM_test` 单独开窗**，projects/ 根窗口只做文档。误报不破坏编译，主要影响：IntelliSense 拿不到 HAL 头文件（红色波浪线）、一键编译/烧录按钮可能指向错误项目。
 - SG90 舵机虚位大、有死区：需 PD 控制 + 软件死区（误差 <40px 停止调整），见参考仓库 `pid.py`。
 - 激光头与摄像头物理不重合导致打偏：需要 `OFFSET_X`/`OFFSET_Y` 视差补偿。
 - 2×SG90 需 5V/2A 独立供电，不要全从板子 USB 口取电。
