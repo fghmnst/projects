@@ -1,5 +1,8 @@
 # Lesson 0002 · CubeMX 工程结构解剖：DianDengMaster 逐文件精读
 
+> [!warning] 2026-08-19 结构变更
+> 本课讲解的工程已于 2026-08-19 改名 **DDM_test** 并删除旧目录，且 CubeMX 重新生成后 **CMake 工程根已平铺到项目根**（`CMakeLists.txt`/`CMakePresets.json`/`startup`/`.ld` 直接在根目录，不再有嵌套 `DianDengMaster_1/`）。本课文件层级图保留作历史参考，实际工程结构以 `DDM_test/` 当前状态为准（见 AGENTS.md）。
+
 > 本课里程碑：**面对 DianDengMaster 能说出每个文件是干什么的、哪些能改哪些不能改，main.c 每一行都看得懂**
 > 前置：[[教学-STM32/lessons/0001-工具链闭环与LED闪烁|0001 工具链闭环与 LED 闪烁]]（已能编译+烧录）
 

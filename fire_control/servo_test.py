@@ -7,7 +7,7 @@ import serial
 
 STEP = 50
 FLIP_X = False
-FLIP_Y = False
+FLIP_Y = True
 
 SERVO_MIN = 500
 SERVO_MAX = 2500

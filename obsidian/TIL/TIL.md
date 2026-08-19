@@ -6,6 +6,7 @@
 
 - [[TIL/tmux 共享终端操作手册|tmux 共享终端操作手册]]
 - [[TIL/Hermes 云部署指南（飞书每日推送）|Hermes 云部署指南（飞书每日推送）]]
+- [[TIL/WSL 串口权限 dialout 组与 chmod 临时方案|WSL 串口权限：dialout 组与 chmod 临时方案]]
 - [[TIL/opencode TUI 速查表|opencode TUI 速查表]]
 - [[TIL/Translate Pro 快捷键速查表|Translate Pro 快捷键速查表]]
 - [[TIL/Obsidian AppImage 依赖缺失|Obsidian AppImage 依赖缺失]]
