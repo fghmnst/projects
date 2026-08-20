@@ -57,8 +57,8 @@ Host *
     ServerAliveCountMax 10
 
 Host server2
-    HostName  [IP_REDACTED]
-    User fghmnst
+    HostName  <服务器IP，见 ~/.ssh/config>
+    User <你的用户名>
     Port 22
 ```
 
@@ -132,7 +132,7 @@ sudo ~/.local/bin/hermes gateway status --system
 2. 服务器日志里抓 open_id：
    ```bash
    grep "inbound message" ~/.hermes/logs/gateway.log
-   # inbound message: platform=feishu user=[FEISHU_UID_REDACTED] chat=oc_... user_id=ou_...
+   # inbound message: platform=feishu user=ou_xxxx...(真实值脱敏) chat=oc_... user_id=ou_...
    ```
 3. 写入 `.env` 白名单（`FEISHU_ALLOWED_USERS`，多个用逗号分隔）+ 在飞书对话中执行 `/sethome` 设置 home_channel
 

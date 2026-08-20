@@ -2,6 +2,17 @@
 
 本工作区是 30 天学习计划。核心产出是复刻「视觉追踪火控云台」（STM32 + OpenCV + PID），副线是 C++ 贪吃蛇。代码工作围绕主线展开；知识沉淀放 obsidian，不在本仓库。
 
+## 公开仓库安全（2026-08-20 起强制）
+
+- **`projects` 与 `Novice-Village-Elite-Monsters` 均为 GitHub 公开仓库**，任何 commit 立即对外可见。**严禁提交隐私信息**：
+  - 凭据/密钥/Token（`.env` 内容、API key、SSH 私钥、机器人 App Secret 等）
+  - 服务器 IP / SSH 端口 / 云账号信息（如 server2 的 HostName）
+  - 个人标识：邮箱、OpenID、频道/群 ID、白名单值、Windows 用户名、手机号
+- **写文档一律「写位置不写值」**：服务器 IP 写「见 `~/.ssh/config`」、飞书凭据写「`~/.hermes/.env`」、白名单/群 ID 写「`~/.hermes/config.yaml` 的 `platforms.feishu`」。
+- `git add` 前先 `git diff --cached` 自查；拿不准就写位置不写值。
+- `.hermes.md` 含服务器部署细节，**禁止加入 git 跟踪**（历史 commit `da72d70` 曾因隐私将其移出跟踪，保持未跟踪）。
+- 历史文件（每日日志 8-04~8-18、TIL 云部署指南）含已公开的 IP/OpenID/邮箱——彻底清除需用户手动改写历史（force push），未清除前不得复制其内容到新文件。
+
 ## Agent 职责边界（opencode vs Hermes）
 
 - 本文件是**本机 opencode 专属指令**（WSL 内 `/home/fgh/projects`），仅供 opencode 读取执行。
@@ -43,14 +54,14 @@
 ## 云端服务器（server2）工作流
 
 ### 连接
-- 别名 `ssh server2`（`~/.ssh/config`：`[IP_REDACTED]` / `fghmnst` / 22，已配 ControlMaster 连接复用）；WSL 与 Windows 共用同一把 ed25519 密钥，免密登录。
+- 别名 `ssh server2`（`~/.ssh/config` 已配 ControlMaster 连接复用，服务器信息见 config，不写本文件）；WSL 与 Windows 共用同一把 ed25519 密钥，免密登录。
 - **非交互 ssh 的 PATH 坑**：`hermes` 不在 PATH，`sudo` 也不含 `~/.local/bin`——一律写全路径 `~/.local/bin/hermes`。
 - 服务器 **sudo 需要密码**（无免密），涉及 sudo 的操作交用户手动执行。
 
 ### 服务器现役设施（2026-08-10 现状，飞书时代）
 - **Hermes Agent**：provider `deepseek`，模型 `deepseek-v4-flash`（密钥在 `~/.hermes/.env`，非密钥配置在 `~/.hermes/config.yaml`）。
 - **Hermes Gateway**：systemd 系统服务 `hermes-gateway`（开机自启）。**免 sudo 重启技巧**：`pkill -f "hermes_cli.main gateway"` → systemd 自动拉起（~30s），新进程读新配置；网关状态 `systemctl status hermes-gateway`。
-- **飞书机器人**（2026-08-10 起启用，当前唯一消息平台——QQ markdown 仅支持受限子集、微信有 24h 主动消息限制，见 TIL 指南「平台选型」）：平台 `feishu`，**WebSocket 长连接模式（无需公网入口）**；凭据 `FEISHU_APP_ID/SECRET`（`~/.hermes/.env`）；私聊白名单 `FEISHU_ALLOWED_USERS=[FEISHU_UID_REDACTED]`；home channel `[FEISHU_CHAT_REDACTED]`（`config.yaml` 的 `platforms.feishu`）；飞书消息按 post 富文本渲染，markdown 自动降级纯文本（渲染失败不会乱码）。
+- **飞书机器人**（2026-08-10 起启用，当前唯一消息平台——QQ markdown 仅支持受限子集、微信有 24h 主动消息限制，见 TIL 指南「平台选型」）：平台 `feishu`，**WebSocket 长连接模式（无需公网入口）**；凭据 `FEISHU_APP_ID/SECRET`（值在 `~/.hermes/.env`）；私聊白名单与 home channel 见 `~/.hermes/config.yaml` 的 `platforms.feishu`（值不写本文件）；飞书消息按 post 富文本渲染，markdown 自动降级纯文本（渲染失败不会乱码）。
 - **QQ / 微信：已停用**（2026-08-10 迁移至飞书）：config.yaml `enabled: false` + .env 凭据已注释，备份在 `~/.hermes/.env.bak-[DATE_REDACTED]`。**不要重新启用**，除非用户明确要求。
 - **文件系统检查点**：已启用（`checkpoints.enabled: true`），Hermes 对话内 `/rollback` 可恢复被改坏的文件。
 - **cron 任务 `daily-digest`**（`0 7 * * *`，`--deliver feishu --workdir /home/fghmnst/projects`）：git pull → 读昨日日志 → 生成「昨日小结+今日待办」→ 推飞书。
