@@ -3,9 +3,9 @@ import argparse
 import cv2
 import numpy as np
 
-# 用 color_picker.py 调出来的数值 (2026-08-22 实调: Lower=[0,105,193] Upper=[179,255,255])
-HSV_LOWER = np.array([0, 105, 193])
-HSV_UPPER = np.array([179, 255, 255])
+# 用 color_picker.py 调出来的数值 (2026-08-22 两次实调, 最终: Lower=[0,120,100] Upper=[25,255,255])
+HSV_LOWER = np.array([0, 120, 100])
+HSV_UPPER = np.array([25, 255, 255])
 MIN_AREA = 500  # 面积门槛: 比这小的轮廓当作噪点
 
 

@@ -7,9 +7,9 @@ import serial
 from pid import PID
 
 # ================= 用户配置区域 (实机调参重点) =================
-# HSV 阈值 (2026-08-22 桌面背景实测; 换光照/背景需用 color_picker.py 重调)
-HSV_LOWER = np.array([0, 105, 193])
-HSV_UPPER = np.array([179, 255, 255])
+# HSV 阈值 (2026-08-22 实调: Lower=[0,120,100] Upper=[25,255,255]; 换光照/背景需重调)
+HSV_LOWER = np.array([0, 120, 100])
+HSV_UPPER = np.array([25, 255, 255])
 
 MIN_AREA = 500  # 面积门槛: 比这小的轮廓当作噪点
 DEAD_ZONE = 40  # 软件死区: 误差小于此值不调整 (SG90 虚位大, 防止来回抖)
@@ -43,7 +43,7 @@ def main():
             print(f"connected: {args.port} @115200")
         except Exception as e:
             print(f"cannot open serial {args.port}: {e}")
-            print("fallback to --no-serial mode")
+            print("NOTE: running WITHOUT serial! gimbal will NOT move!")
             ser = None
 
     cap = cv2.VideoCapture(0)
