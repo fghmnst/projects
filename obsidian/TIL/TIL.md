@@ -11,6 +11,7 @@
 - [[TIL/Translate Pro 快捷键速查表|Translate Pro 快捷键速查表]]
 - [[TIL/Obsidian AppImage 依赖缺失|Obsidian AppImage 依赖缺失]]
 - [[TIL/Obsidian GUI 启动故障排障|Obsidian GUI 启动故障排障]]
+- [[TIL/视觉目标追踪方案对比|视觉目标追踪方案对比（HSV vs 更普适方案）]]
 
 ## 约定
 
