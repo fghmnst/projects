@@ -38,6 +38,8 @@
 
 ## 练习项目：DDM_test（CubeMX 点灯 → 双舵机串口测试固件）
 
+> **⚠️ 已冻结（2026-08-23）**：不认可原知乎文章的视觉追踪实现方案（HSV 快照对环境敏感、固定摄像头方案视差无解），且暂时无改进兴趣。代码与 git 历史完整保留，不再投入开发；若未来恢复，从限位校准 + 像素-角度映射起步。见 `obsidian/每日日志/2026-08-23.md`。
+
 - 位置：**`DDM_test/`**（工作区内，随仓库 git 管理；2026-08-11 以 DianDengMaster 之名接入，**2026-08-19 改名 DDM_test 并删除旧目录 DianDengMaster/**，git 历史中仍可找回）。CubeMX 生成，STM32F103C8Tx + HAL + CMake 工具链，FW F1 V1.8.7。**以后 STM32 项目的编辑都在这个文件夹（及其同类结构）里进行。**
 - **当前结构（2026-08-19 更新）**：CMake 工程根 = 项目根（**平铺，无嵌套**）：根目录即 `CMakeLists.txt`、`CMakePresets.json`、`startup_stm32f103xb.s`、`STM32F103xx_FLASH.ld`、`cmake/stm32cubemx/CMakeLists.txt`，加 `Core/`、`Drivers/`、`DDM_test.ioc`。构建入口：`cmake --build build/Debug`（VS Code 的 CMake 扩展也可）。旧版嵌套 `DianDengMaster_1/` 结构已随改名消失。
 - **当前外设配置（2026-08-19）**：HSE 8MHz ×9 = 72MHz；TIM2 CH1(PA0)=X 舵机、CH2(PA1)=Y 舵机（Prescaler 71 / Period 19999 / Pulse 1500 → 50Hz 舵机 PWM）；USART1(PA9/PA10) 115200 轮询接收，协议 `X增量,Y增量\n`（`sscanf` 解析，限位 500–2500）。烧录用 ST-Link（launch.json 已配 ST-Link GDB）。
