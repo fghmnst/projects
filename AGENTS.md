@@ -1,114 +1,118 @@
 # AGENTS.md
 
-本工作区是 30 天学习计划。核心产出是复刻「视觉追踪火控云台」（STM32 + OpenCV + PID），副线是 C++ 贪吃蛇。代码工作围绕主线展开；知识沉淀放 obsidian，不在本仓库。
+本仓库（WSL 内 `~/SomeThingFunny/projects`，GitHub 公开仓库 `fghmnst/projects`）的职责：**辅助规划大二学习路径，并记录相关项目进度**。规划与笔记沉淀在 `obsidian/`，工程代码在仓库根目录各项目文件夹。本文件是**本机 opencode 专属指令**；子库 `obsidian/somezhishi/` 另有自己的 `AGENTS.md`，只管辖该子库。
 
-## 公开仓库安全（2026-08-20 起强制）
+## 一、当前阶段（2026 秋 · 大二上）
 
-- **`projects` 与 `Novice-Village-Elite-Monsters` 均为 GitHub 公开仓库**，任何 commit 立即对外可见。**严禁提交隐私信息**：
+- **唯一事实源**：`obsidian/2026-2027 大二上学期学习计划.md`（目标 / 时间预算 / 双轨策略 / 阶段门 / 风险）。**计划变更必须写进周复盘并在计划文档中体现**，不口头漂移。
+- **入口**：`obsidian/2026秋 Index.md`。
+- **阶段门**：W4 轻门 → W9-10 期中门（四决策点）→ W16 云台 2.0 验收 → W18 期末复盘；到期必须核查并留记录。
+- **本学期主线**：C 阶梯（P1→P3，代码 `C-tools/`）、云台 2.0（`gimbal2/`，W11 点火）、CET-6（12 月）、五门校内课双轨。C++ 寒假启动。
+- **Agent 默认角色**：学习教练 + 进度管家。规划类讨论先读计划文档，一次一问、每问附推荐方案；进度写日志/复盘，不改计划本身（除非用户明确要求）。
+
+## 二、公开仓库安全（强制）
+
+- `projects` 与 `Novice-Village-Elite-Monsters` 均为 GitHub 公开仓库，任何 commit 立即对外可见。**严禁提交隐私信息**：
   - 凭据/密钥/Token（`.env` 内容、API key、SSH 私钥、机器人 App Secret 等）
   - 服务器 IP / SSH 端口 / 云账号信息（如 server2 的 HostName）
-  - 个人标识：邮箱、OpenID、频道/群 ID、白名单值、Windows 用户名、手机号
+  - 个人标识：邮箱、OpenID、频道/群 ID、白名单值、Windows 用户名、手机号；成绩、排名、校名等个人信息
 - **写文档一律「写位置不写值」**：服务器 IP 写「见 `~/.ssh/config`」、飞书凭据写「`~/.hermes/.env`」、白名单/群 ID 写「`~/.hermes/config.yaml` 的 `platforms.feishu`」。
 - `git add` 前先 `git diff --cached` 自查；拿不准就写位置不写值。
-- `.hermes.md` 含服务器部署细节，**禁止加入 git 跟踪**（历史 commit `da72d70` 曾因隐私将其移出跟踪，保持未跟踪）。
-- 历史文件（每日日志 8-04~8-18、TIL 云部署指南）含已公开的 IP/OpenID/邮箱——彻底清除需用户手动改写历史（force push），未清除前不得复制其内容到新文件。
+- `.hermes.md` 已按安全规范清洗并重新纳入 git 跟踪（2026-09-10）；内容仍须「写位置不写值」。
+- 历史文件（每日日志 8-04~8-18、TIL 云部署指南）含已公开的 IP/OpenID/邮箱——不得复制其内容到新文件。
 
-## Agent 职责边界（opencode vs Hermes）
+## 三、Agent 职责边界（opencode vs Hermes）
 
-- 本文件是**本机 opencode 专属指令**（WSL 内 `/home/fgh/projects`），仅供 opencode 读取执行。
-- **Hermes 不读本文件**：服务器 `/home/fghmnst/projects/.hermes.md` 优先级更高（Hermes 上下文文件发现顺序 `.hermes.md` → `AGENTS.md` → `CLAUDE.md`，先匹配先生效），Hermes 启动时只加载 `.hermes.md`，本文件内容不会污染云端。
-- opencode 职责：本机工程（编译/烧录/串口）、知识库管理、每日日志撰写、服务器直连运维。
-- Hermes 职责：云端学习助理（飞书对话、daily-digest 推送、学习建议），行为由服务器 `.hermes.md` 约束。
+- 本文件是**本机 opencode 专属指令**，仅供 opencode 读取执行。
+- **Hermes 不读本文件**：服务器 `/home/fghmnst/projects/.hermes.md` 优先级更高（发现顺序 `.hermes.md` → `AGENTS.md` → `CLAUDE.md`，先匹配先生效），本文件内容不会污染云端。
+- opencode 职责：学习规划与进度记录、知识库管理、本机工程（编译/烧录/串口）、服务器只读运维。
+- Hermes 职责：云端学习助理（飞书对话、daily-digest 晨报），行为由服务器 `.hermes.md` 约束。
 - 下文「云端服务器工作流」各条均为 **opencode 的执行规范**，与 Hermes 自身行为无关。
 
-## 知识库与 Obsidian
+## 四、规划与进度记录工作流
 
-- 知识库（obsidian vault）位于 **`/home/fgh/projects/obsidian`**（WSL 内，随 projects 仓库 git 管理）。结构：`30天学习 Index.md`（入口）、`每日日志/`、`教学-STM32/`（主线教学 workspace）、`教学-贪吃蛇/`（副线教学 workspace）、`模块笔记/`、`TIL/`、`术语表/`、`归档/`（历史文档，2026-08-19 创建）。**目录约定**：每个目录有同名索引笔记（如 `术语表/术语表.md`）；Wikilink 一律写**显式路径**（如 `[[术语表/术语表|术语表]]`），不要用短名——vault 存在多个同名笔记（两个教学 workspace 各有 MISSION/NOTES/术语表），短名会歧义。
-- Obsidian 用 **Linux AppImage**（`~/bin/Obsidian.AppImage`）跑在 WSLg。命令行启动（`~/.bashrc` alias `obsidian-gui`，2026-08-11 加固版）：`nohup env APPIMAGE_EXTRACT_AND_RUN=1 ~/bin/Obsidian.AppImage >/tmp/obsidian.log 2>&1 &`——**必须**带 nohup + 输出重定向：AppImage 以 `&` 后台跑但不脱离终端时，会被作业控制信号挂起（进程 T 态、GUI 不弹出）；`[WARN:COPY MODE]` 是 AppImage runtime 的良性提示（解压运行而非 FUSE 挂载，因 alias 强制 `APPIMAGE_EXTRACT_AND_RUN=1`），不影响启动。官方 CLI 在 `~/.local/bin/obsidian`，**要求 Obsidian App 正在运行**才能用。
-- 教学场景用 `teach` 技能（教学工作区生成 MISSION.md/lessons/ 等，默认放 vault 内）；查/建笔记用 `obsidian-vault` 技能。
-- **Obsidian 操作约定（必须遵守）**：涉及 vault 的读/写操作（查笔记、建/改/删笔记、搜内容、属性/标签/反向链接等）**优先使用 obsidian CLI**（`~/.local/bin/obsidian`，需 App 运行中）和相关 skills（`obsidian-cli` / `obsidian-markdown` / `obsidian-bases` / `obsidian-vault`）；但**编辑纯 markdown 文本时可直接修改 markdown 源文件**，仅当涉及双向链接（wikilinks）等 Obsidian 特色功能时必须使用 obsidian CLI。CLI 不可用（App 未启动）时，先启动 App 或报告用户。
-- git 跟踪 vault 内的 **markdown 笔记 + `.obsidian/` 配置**（核心插件开关/主题/快捷键/插件数据随仓库跨设备同步，双链等特色功能换机即还原；仅 `workspace.json`/`cache/` 等设备相关文件被 `.gitignore` 排除）；图片等二进制仍排除（当前 0 附件，若未来启用需评估体积）。
+- **规划**：讨论前先读 `obsidian/2026-2027 大二上学期学习计划.md`；结论变更写入周复盘并在计划文档同步；阶段门到期必须核查。
+- **每日**：日志写入 `obsidian/每日日志/YYYY-MM-DD.md`，当天结束更新，三栏（今日推进 / 卡点 / 明日一击），≤10min。
+- **每周日 21:00**：周复盘 30min（产出 vs 时间账偏差 / 告警 / 下周微调），写入 `obsidian/周复盘/`，模板见 `obsidian/周复盘/周复盘.md`。
+- **项目进度落点**：里程碑（P1/W4、P2/W7、P3/W10、云台验收/W16）在周复盘对照检查；卡点当日进日志，供后续 session 优先处理。
+- 学习/规划对话默认中文；重要结论必须落文档，不留在对话里。
 
-## 主项目：视觉追踪火控云台
+## 五、知识库与 Obsidian
 
-- 参考开源仓库（复刻对象）：`github.com/edythieajahgsgshwtvwywvwfd-sketch/S90_aim_ball`，本地 git clone 位于 **`~/S90_aim_ball`**（工作区外——2026-08-10 移出 `projects/`：其含独立 CMake 工程，留在工作区会触发 VS Code STM32 扩展「多个 CMake 项目」误报；代码不随本仓库 git 管理）
-  - 文件布局：`Core/`(STM32 HAL 主程序)、`Drivers/`(HAL 驱动)、`ball_track.py`(视觉追踪)、`pid.py`(PID)、`color_picker.py`(HSV 阈值调色工具)、`S90_aim_ball.ioc`(CubeMX 配置)、CMake 工程
-- 系统架构：PC(Python/OpenCV 识别橙色球 + PID) → 串口发送 `X增量,Y增量\n` → STM32F103C8T6 `sscanf` 解析 → PWM 驱动 2×SG90 舵机云台 → 激光头
-- 视觉全部跑在 PC 端（OpenCV + pyserial），STM32 端只做串口解析和 PWM 输出
+- 知识库（vault）位于 **`~/SomeThingFunny/projects/obsidian`**（随本仓库 git 管理）。结构：`2026秋 Index.md`（学期入口）、`2026-2027 大二上学期学习计划.md`、`每日日志/`、`周复盘/`、`课程笔记/`、`TIL/`、`术语表/`、`模块笔记/`、`教学-STM32/`、`教学-贪吃蛇/`、`阶段回顾/`、`归档/`、`somezhishi/`（子库）。
+- **目录约定**：每个目录有同名索引笔记；Wikilink 一律写**显式路径**（如 `[[术语表/术语表|术语表]]`），不要用短名。
+- **somezhishi 子库**（`obsidian/somezhishi/`，已纳入本仓库跟踪）遵循其自己的 `AGENTS.md`：日期 frontmatter、初学者向、一主题一篇、文件名用连字符。
+- **Obsidian 启动**：GUI 用 `~/.local/bin/obsidian-gui`（封装 `~/Downloads/Obsidian-1.13.7.AppImage`，WSLg/Wayland）；官方 CLI 在 `~/.local/bin/obsidian`，**要求 App 运行中**才能用。
+- **操作约定**：涉及 vault 的读/写优先用 obsidian CLI 与技能（`obsidian-cli` / `obsidian-markdown` / `obsidian-bases` / `json-canvas` / `defuddle`）；纯 markdown 文本可直接编辑源文件；教学场景用 `teach` 技能。
+- git 跟踪 vault 内 **markdown 笔记 + `.obsidian/` 配置**（设备相关文件与图片被 `.gitignore` 排除）。
 
-## 练习项目：DDM_test（CubeMX 点灯 → 双舵机串口测试固件）
+## 六、项目与进度
 
-> **⚠️ 已冻结（2026-08-23）**：不认可原知乎文章的视觉追踪实现方案（HSV 快照对环境敏感、固定摄像头方案视差无解），且暂时无改进兴趣。代码与 git 历史完整保留，不再投入开发；若未来恢复，从限位校准 + 像素-角度映射起步。见 `obsidian/每日日志/2026-08-23.md`。
+- **云台项目背景**：PC(Python/OpenCV + PID) → 串口协议 → STM32F103C8T6 PWM → 2×SG90 云台 → 激光头。暑假完成 WASD 手动控制（`fire_control/`）；视觉追踪方案曾冻结。
+- **DDM_test/**：⚠️ 已冻结（2026-08-23），代码与 git 历史保留；若恢复从限位校准 + 像素-角度映射起步。**STM32 新项目一律新建同类平铺 CMake 文件夹**。
+- **fire_control/**：PC 端脚本（`servo_test.py` 等），云台 2.0 阶段复用/重构。
+- **C-tools/**：C 阶梯三产物（P1 `note-stats` / P2 `prob-cli` / P3 `mytool`），W2 起逐步建立，纯 C + Makefile + git。
+- **gimbal2/**：云台 2.0（W11 点火），目标：UART 中断/DMA + 环形缓冲 + 帧协议 + 分层 + 斜坡限幅，W16 验收。
+- **CppSnake/**：已移除；C++ 线按计划推迟到寒假（触发条件：C 阶梯达标）。
+- 参考仓库 `~/S90_aim_ball` 已不在本机；相关历史见 `obsidian/TIL/` 与 `归档/`。
 
-- 位置：**`DDM_test/`**（工作区内，随仓库 git 管理；2026-08-11 以 DianDengMaster 之名接入，**2026-08-19 改名 DDM_test 并删除旧目录 DianDengMaster/**，git 历史中仍可找回）。CubeMX 生成，STM32F103C8Tx + HAL + CMake 工具链，FW F1 V1.8.7。**以后 STM32 项目的编辑都在这个文件夹（及其同类结构）里进行。**
-- **当前结构（2026-08-19 更新）**：CMake 工程根 = 项目根（**平铺，无嵌套**）：根目录即 `CMakeLists.txt`、`CMakePresets.json`、`startup_stm32f103xb.s`、`STM32F103xx_FLASH.ld`、`cmake/stm32cubemx/CMakeLists.txt`，加 `Core/`、`Drivers/`、`DDM_test.ioc`。构建入口：`cmake --build build/Debug`（VS Code 的 CMake 扩展也可）。旧版嵌套 `DianDengMaster_1/` 结构已随改名消失。
-- **当前外设配置（2026-08-19）**：HSE 8MHz ×9 = 72MHz；TIM2 CH1(PA0)=X 舵机、CH2(PA1)=Y 舵机（Prescaler 71 / Period 19999 / Pulse 1500 → 50Hz 舵机 PWM）；USART1(PA9/PA10) 115200 轮询接收，协议 `X增量,Y增量\n`（`sscanf` 解析，限位 500–2500）。烧录用 ST-Link（launch.json 已配 ST-Link GDB）。
-- **VS Code 嵌入式工作流**：直接 `code ~/projects/DDM_test` 打开该文件夹做编译/烧录；**不要在 `projects/` 根窗口做嵌入式开发**（误报见「已知坑」）。CubeMX 重新生成时保持 `ToolChainLocation=DDM_test` 即可。
-- `build/` 等构建产物已被 `.gitignore` 排除。
-
-## PC 端工具：fire_control/
-
-- 位置：**`fire_control/`**（工作区内，随仓库 git 管理；2026-08-19 创建）。
-- 内容：主项目（火控云台）PC 端脚本。当前：`servo_test.py`（WASD 双舵机测试，termios 单键读取 + FLIP_X/FLIP_Y 方向翻转 + STEP 步长；运行 `python3 fire_control/servo_test.py`）。未来 ball_track.py / pid.py 的复刻版也放这里。
-- **参考仓库 `~/S90_aim_ball` 已设为只读（2026-08-19，`chmod -R a-w`）**：只做阅读参考，不再直接修改；需要其代码时复刻到本仓库。恢复写权限：`chmod -R u+w ~/S90_aim_ball`。
-- **WSL 串口权限**：CH340 → `/dev/ttyUSB0`，需 `dialout` 组（`sudo usermod -aG dialout $USER` 后重新登录生效）；临时绕过用 `sudo chmod 666 /dev/ttyUSB0`（设备重新枚举后失效）。
-
-## 云端服务器（server2）工作流
+## 七、云端服务器（server2）工作流
 
 ### 连接
 - 别名 `ssh server2`（`~/.ssh/config` 已配 ControlMaster 连接复用，服务器信息见 config，不写本文件）；WSL 与 Windows 共用同一把 ed25519 密钥，免密登录。
 - **非交互 ssh 的 PATH 坑**：`hermes` 不在 PATH，`sudo` 也不含 `~/.local/bin`——一律写全路径 `~/.local/bin/hermes`。
 - 服务器 **sudo 需要密码**（无免密），涉及 sudo 的操作交用户手动执行。
 
-### 服务器现役设施（2026-08-10 现状，飞书时代）
+### 服务器现役设施
 - **Hermes Agent**：provider `deepseek`，模型 `deepseek-v4-flash`（密钥在 `~/.hermes/.env`，非密钥配置在 `~/.hermes/config.yaml`）。
-- **Hermes Gateway**：systemd 系统服务 `hermes-gateway`（开机自启）。**免 sudo 重启技巧**：`pkill -f "hermes_cli.main gateway"` → systemd 自动拉起（~30s），新进程读新配置；网关状态 `systemctl status hermes-gateway`。
-- **飞书机器人**（2026-08-10 起启用，当前唯一消息平台——QQ markdown 仅支持受限子集、微信有 24h 主动消息限制，见 TIL 指南「平台选型」）：平台 `feishu`，**WebSocket 长连接模式（无需公网入口）**；凭据 `FEISHU_APP_ID/SECRET`（值在 `~/.hermes/.env`）；私聊白名单与 home channel 见 `~/.hermes/config.yaml` 的 `platforms.feishu`（值不写本文件）；飞书消息按 post 富文本渲染，markdown 自动降级纯文本（渲染失败不会乱码）。
-- **QQ / 微信：已停用**（2026-08-10 迁移至飞书）：config.yaml `enabled: false` + .env 凭据已注释，备份在 `~/.hermes/.env.bak-[DATE_REDACTED]`。**不要重新启用**，除非用户明确要求。
-- **文件系统检查点**：已启用（`checkpoints.enabled: true`），Hermes 对话内 `/rollback` 可恢复被改坏的文件。
-- **cron 任务 `daily-digest`**（`0 7 * * *`，`--deliver feishu --workdir /home/fghmnst/projects`）：git pull → 读昨日日志 → 生成「昨日小结+今日待办」→ 推飞书。
-- **`~/projects`**：GitHub 私有仓库 `fghmnst/projects` 的 clone（服务器专用 GitHub 密钥，公钥已加账号）。
+- **Hermes Gateway**：systemd 系统服务 `hermes-gateway`（开机自启）。**免 sudo 重启技巧**：`pkill -f "hermes_cli.main gateway"` → systemd 自动拉起（~30s）。网关状态 `systemctl status hermes-gateway`。
+- **飞书机器人**（当前唯一消息平台）：平台 `feishu`，WebSocket 长连接；凭据 `~/.hermes/.env`；白名单与 home channel 见 `~/.hermes/config.yaml` 的 `platforms.feishu`（值不写本文件）。
+- **QQ / 微信：已停用**，不要重新启用，除非用户明确要求。
+- **文件系统检查点**：已启用（`checkpoints.enabled: true`），`/rollback` 可恢复被改坏的文件。
+- **cron 任务 `daily-digest`**（`0 7 * * *`，`--deliver feishu --workdir /home/fghmnst/projects`）：git pull → 读昨日日志 → 生成「昨日小结+今日待办」→ 推飞书。**日志不 commit 就读不到**。
+- **`~/projects`**：GitHub `fghmnst/projects` 的服务器 clone。
 
 ### 远程操作约定（必须遵守）
-- **服务器操作一律只读**：agent 仅可 `ssh server2 'cmd'` 执行**只读命令**（ls/cat/grep/tail/git log/git status/git diff/ss/ps/日志查询等，不修改服务器任何状态），执行路径（直连）在回复中注明。
-- **一切写操作命令化交付（用户执行）**：凡会修改服务器状态的操作——文件写/改配置、`git pull`/commit 等 git 写操作、重启 gateway、cron 增删改、hermes 命令（查询/对话/写操作）——一律由 agent 输出可复制的命令行 + 验证手段，**用户手动执行并反馈结果**，agent 不直接执行。复杂命令（含引号 `"` `$` 反引号）agent 先写脚本文件，用户仅执行脚本。
-- 改 `.env`/`config.yaml` 后必须重启 gateway 生效（pkill 技巧，命令化交付）；验证 `hermes doctor` + 日志。
-- 日志：`~/.hermes/logs/gateway.log`（连接/消息）、`agent.log`（cron 执行/投递）；推送成功标志 = `grep "delivered to feishu" ~/.hermes/logs/agent.log`。
-- 详细部署与排障见 `TIL/Hermes 云部署指南（飞书每日推送）.md`。
-- **指挥 Hermes 优先用 `hermes-ops` skill**（`~/.agents/skills/hermes-ops/SKILL.md`，覆盖常用指令与本机约定）；skill 未覆盖的查 Hermes 官方文档（CLI 参考：`hermes-agent.nousresearch.com/docs/zh-Hans/reference/cli-commands`）。
+- **服务器操作一律只读**：agent 仅可 `ssh server2 'cmd'` 执行只读命令（ls/cat/grep/tail/git log/git status/git diff/ss/ps/日志查询等），执行路径（直连）在回复中注明。
+- **一切写操作命令化交付（用户执行）**：改文件/配置、git 写操作、重启 gateway、cron 增删改、hermes 命令——一律输出可复制命令行 + 验证手段，用户手动执行并反馈。复杂命令先写脚本文件，用户仅执行脚本。
+- 改 `.env`/`config.yaml` 后必须重启 gateway 生效；验证 `hermes doctor` + 日志。
+- 日志：`~/.hermes/logs/gateway.log`、`agent.log`；推送成功标志 = `grep "delivered to feishu" ~/.hermes/logs/agent.log`。
+- 详细部署与排障见 `obsidian/TIL/Hermes 云部署指南（飞书每日推送）.md`；Hermes 官方文档 `hermes-agent.nousresearch.com/docs/zh-Hans/reference/cli-commands`（本机已无 `hermes-ops` 技能）。
 
 ### 每日联动
-- 用户每晚 commit 每日日志 → 次日 7:00 cron 推送依赖 `git pull` 拉到最新日志（不提交就读不到）。
+- 用户每晚 commit 每日日志 → 次日 7:00 cron 推送依赖 `git pull` 拉到最新日志。
 - 修改 vault 内容后应顺手 `git commit` 作为安全网（与 Hermes 云端约定一致）。
 
-## 已定的技术决策（不要推翻）
+## 八、已定的技术决策（不要推翻）
 
-- STM32 工具链：**vscode + STM32CubeMX(生成代码) + CMake**。参考仓库原用 CLion+CubeMX，用户已决定改用 vscode。
-- 副线贪吃蛇：**C++**。主线 STM32 用 C(HAL)，Python 定位为工具语言（视觉/脚本），均不引入第三方学习路线。
-- 烧录器：用户已有 ST-Link V2（SWD 烧录，2026-08-08 确认）。烧录通路：usbipd-win 直通 WSL（Plan B：Windows 侧 CubeProgrammer CLI，永不阻塞）。
+- STM32 工具链：**vscode + STM32CubeMX(生成代码) + CMake**。
+- 烧录器：ST-Link V2（SWD）；烧录通路 usbipd-win 直通 WSL（Plan B：Windows 侧 CubeProgrammer CLI）。
+- 语言线：**C 是主线语言**（STM32 HAL + C 阶梯）；**C++ 寒假启动**（触发：C 阶梯达标）；Python 定位工具语言（视觉/脚本），本学期随课。
+- 视觉方案：不沿用被否定的 HSV 快照方案；W11 启动周做选型门（见 `obsidian/TIL/视觉目标追踪方案对比.md`）。
 
-## 已知坑（来自参考文章，直接相关）
+## 九、已知坑
 
-- **VS Code STM32 扩展「多个 CMake 项目」误报（2026-08-19 更新）**：曾因 `S90_aim_ball` 留在工作区触发（2026-08-10 移出 `~/` 解决一半）、DianDengMaster 嵌套 CMake 根触发（2026-08-11）。2026-08-19 改名 DDM_test 后工程 CMake 根已平铺（无嵌套），且旧 DianDengMaster 目录已删除，工作区现在只剩一个 `.ioc`——误报根源已消除。**约定保留：嵌入式开发仍用 `code ~/projects/DDM_test` 单独开窗**，projects/ 根窗口只做文档。误报不破坏编译，主要影响：IntelliSense 拿不到 HAL 头文件（红色波浪线）、一键编译/烧录按钮可能指向错误项目。
-- SG90 舵机虚位大、有死区：需 PD 控制 + 软件死区（误差 <40px 停止调整），见参考仓库 `pid.py`。
-- 激光头与摄像头物理不重合导致打偏：需要 `OFFSET_X`/`OFFSET_Y` 视差补偿。
+- **VS Code STM32 扩展「多个 CMake 项目」误报**：嵌入式开发用 `code ~/SomeThingFunny/projects/DDM_test`（或同类项目文件夹）单独开窗，仓库根窗口只做文档。
+- SG90 舵机虚位大、有死区：需 PD 控制 + 软件死区（误差 <40px 停止调整）。
+- 激光头与摄像头不重合导致打偏：需 `OFFSET_X`/`OFFSET_Y` 视差补偿。
 - 2×SG90 需 5V/2A 独立供电，不要全从板子 USB 口取电。
+- WSL 串口权限：CH340 → `/dev/ttyUSB0`，需 `dialout` 组；临时绕过 `sudo chmod 666 /dev/ttyUSB0`（重新枚举后失效）。
+- Obsidian 在 WSLg 下必须走 `obsidian-gui`（设 `XDG_RUNTIME_DIR=/mnt/wslg/runtime-dir` + Wayland），不要直接跑 AppImage。
 
-## 每日日志规范
+## 十、每日日志规范
 
-- 每天一篇，写在 `obsidian/每日日志/YYYY-MM-DD.md`，当天结束时更新。
-- 必须包含以下栏目：
-  1. **今日完成事项**：做了什么（含关键 commit/命令）。
-  2. **手动操作事项**：涉及 sudo/浏览器/GUI/采购等必须用户手动做的事，详录到命令级，供换电脑重搭环境时照做。
-  3. **运行环境现状**：`✅ 已完成` / `❌ 缺少/待办` 两份清单。
-  4. **计划/工作流待办**：未决事项、工具盘点报告中的待办、待确认决策。
-  5. **疑惑点**：用户不理解的、卡住的、待解答的问题（重点记录，供后续 session 优先处理）。
+- 每天一篇，写在 `obsidian/每日日志/YYYY-MM-DD.md`，当天结束时更新（≤10min）。
+- **三栏**：
+  1. **今日推进**：做了什么（含关键 commit/命令）。
+  2. **卡点**：卡住的问题；需要用户手动做的事（sudo/浏览器/GUI/采购等）详录到命令级。
+  3. **明日一击**：明天最重要的一件事。
 - 底部加 `[[wikilinks]]` 关联（Index / TIL / 术语表）。
 - 当天写完随代码一起 `git commit`。
 
-## 工程惯例
+## 十一、工程惯例
 
-- 无 CI/lint/测试配置，验证方式 = vscode 编译 + 烧录 + 串口观察。
-- 每天 `git commit` 作为安全网（PID 调参改坏可回退）。
-- **安装指令一律给命令行，让用户自行安装**（除非用户特殊说明，如明确要求 agent 代装）：涉及任何安装（WSL apt / Windows winget / 浏览器下载 / 插件等），只输出可复制的命令行给用户执行，不代为安装。每条安装指令必须附带：① **验证手段**（验证命令或检查清单）；② **可能遇到的问题**（坑与对应解法，含 Plan B 降级路径）。参考模板：`教学-STM32/lessons/0001` 第四节「动手 1：安装工具链」。
-- 学习节奏：每周 5 深度日 + 2 浅度日，深度日 8h 里上午/下午给主线、晚上给贪吃蛇；浅度日只做维护性任务，不安排主线硬核内容。
+- 无 CI/lint/测试配置，验证方式 = vscode 编译 + 烧录 + 串口观察（PC 端脚本 = 实际运行）。
+- 每天 `git commit` 作为安全网。
+- **安装指令一律给命令行，让用户自行安装**：每条附带 ①验证手段 ②可能的问题与解法（含 Plan B）。
+- 学习节奏：**20h/周**，主战场周五+周末；志愿者周砍序见计划文档；健身 6h/周（听力叠加）。
+- 报告语言：中文。
