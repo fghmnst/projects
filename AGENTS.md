@@ -19,7 +19,7 @@
 - **写文档一律「写位置不写值」**：服务器 IP 写「见 `~/.ssh/config`」、飞书凭据写「`~/.hermes/.env`」、白名单/群 ID 写「`~/.hermes/config.yaml` 的 `platforms.feishu`」。
 - `git add` 前先 `git diff --cached` 自查；拿不准就写位置不写值。
 - `.hermes.md` 已按安全规范清洗并重新纳入 git 跟踪（2026-09-10）；内容仍须「写位置不写值」。
-- 历史文件（每日日志 8-04~8-18、TIL 云部署指南）含已公开的 IP/OpenID/邮箱——不得复制其内容到新文件。
+- 历史文件（`obsidian/归档/30天学习/每日日志/` 8-04~8-18、`obsidian/somezhishi/环境排障/Hermes-云部署指南-飞书每日推送.md`）含已公开的 IP/OpenID/邮箱——不得复制其内容到新文件。
 
 ## 三、Agent 职责边界（opencode vs Hermes）
 
@@ -39,9 +39,9 @@
 
 ## 五、知识库与 Obsidian
 
-- 知识库（vault）位于 **`~/SomeThingFunny/projects/obsidian`**（随本仓库 git 管理）。结构：`2026秋 Index.md`（学期入口）、`2026-2027 大二上学期学习计划.md`、`每日日志/`、`周复盘/`、`课程笔记/`、`TIL/`、`术语表/`、`模块笔记/`、`教学-STM32/`、`教学-贪吃蛇/`、`阶段回顾/`、`归档/`、`somezhishi/`（子库）。
-- **目录约定**：每个目录有同名索引笔记；Wikilink 一律写**显式路径**（如 `[[术语表/术语表|术语表]]`），不要用短名。
-- **somezhishi 子库**（`obsidian/somezhishi/`，已纳入本仓库跟踪）遵循其自己的 `AGENTS.md`：日期 frontmatter、初学者向、一主题一篇、文件名用连字符。
+- 知识库（vault）位于 **`~/SomeThingFunny/projects/obsidian`**（随本仓库 git 管理）。结构：`2026秋 Index.md`（学期入口）、`2026-2027 大二上学期学习计划.md`、`每日日志/`（含 Bases 自动索引）、`周复盘/`、`课程笔记/`（含 Bases 自动索引）、`somezhishi/`（沉淀子库，原 `TIL/` 已并入）、`归档/30天学习/`（30 天阶段历史）。
+- **目录约定**：每个目录有同名索引笔记；Wikilink 一律写**显式路径**（如 `[[somezhishi/somezhishi|somezhishi]]`），不要用短名。
+- **somezhishi 子库**（`obsidian/somezhishi/`，已纳入本仓库跟踪）遵循其自己的 `AGENTS.md`：日期 frontmatter、初学者向、一主题一篇、文件名用连字符；分 `工具速查/`、`环境排障/`、`编程基础/`、`项目笔记/` 四个子文件夹（不设同名索引），由顶层 `somezhishi/somezhishi.md` 统一导航。环境运维/工具坑（原 `TIL/`）与通用知识卡都进此库。
 - **Obsidian 启动**：GUI 用 `~/.local/bin/obsidian-gui`（封装 `~/Downloads/Obsidian-1.13.7.AppImage`，WSLg/Wayland）；官方 CLI 在 `~/.local/bin/obsidian`，**要求 App 运行中**才能用。
 - **操作约定**：涉及 vault 的读/写优先用 obsidian CLI 与技能（`obsidian-cli` / `obsidian-markdown` / `obsidian-bases` / `json-canvas` / `defuddle`）；纯 markdown 文本可直接编辑源文件；教学场景用 `teach` 技能。
 - git 跟踪 vault 内 **markdown 笔记 + `.obsidian/` 配置**（设备相关文件与图片被 `.gitignore` 排除）。
@@ -54,7 +54,7 @@
 - **C-tools/**：C 阶梯三产物（P1 `note-stats` / P2 `prob-cli` / P3 `mytool`），W2 起逐步建立，纯 C + Makefile + git。
 - **gimbal2/**：云台 2.0（W11 点火），目标：UART 中断/DMA + 环形缓冲 + 帧协议 + 分层 + 斜坡限幅，W16 验收。
 - **CppSnake/**：已移除；C++ 线按计划推迟到寒假（触发条件：C 阶梯达标）。
-- 参考仓库 `~/S90_aim_ball` 已不在本机；相关历史见 `obsidian/TIL/` 与 `归档/`。
+- 参考仓库 `~/S90_aim_ball` 已不在本机；相关历史见 `obsidian/somezhishi/` 与 `obsidian/归档/`。
 
 ## 七、云端服务器（server2）工作流
 
@@ -77,7 +77,7 @@
 - **一切写操作命令化交付（用户执行）**：改文件/配置、git 写操作、重启 gateway、cron 增删改、hermes 命令——一律输出可复制命令行 + 验证手段，用户手动执行并反馈。复杂命令先写脚本文件，用户仅执行脚本。
 - 改 `.env`/`config.yaml` 后必须重启 gateway 生效；验证 `hermes doctor` + 日志。
 - 日志：`~/.hermes/logs/gateway.log`、`agent.log`；推送成功标志 = `grep "delivered to feishu" ~/.hermes/logs/agent.log`。
-- 详细部署与排障见 `obsidian/TIL/Hermes 云部署指南（飞书每日推送）.md`；Hermes 官方文档 `hermes-agent.nousresearch.com/docs/zh-Hans/reference/cli-commands`（本机已无 `hermes-ops` 技能）。
+- 详细部署与排障见 `obsidian/somezhishi/环境排障/Hermes-云部署指南-飞书每日推送.md`；Hermes 官方文档 `hermes-agent.nousresearch.com/docs/zh-Hans/reference/cli-commands`（本机已无 `hermes-ops` 技能）。
 
 ### 每日联动
 - 用户每晚 commit 每日日志 → 次日 7:00 cron 推送依赖 `git pull` 拉到最新日志。
@@ -88,7 +88,7 @@
 - STM32 工具链：**vscode + STM32CubeMX(生成代码) + CMake**。
 - 烧录器：ST-Link V2（SWD）；烧录通路 usbipd-win 直通 WSL（Plan B：Windows 侧 CubeProgrammer CLI）。
 - 语言线：**C 是主线语言**（STM32 HAL + C 阶梯）；**C++ 寒假启动**（触发：C 阶梯达标）；Python 定位工具语言（视觉/脚本），本学期随课。
-- 视觉方案：不沿用被否定的 HSV 快照方案；W11 启动周做选型门（见 `obsidian/TIL/视觉目标追踪方案对比.md`）。
+- 视觉方案：不沿用被否定的 HSV 快照方案；W11 启动周做选型门（见 `obsidian/somezhishi/项目笔记/视觉目标追踪方案对比.md`）。
 
 ## 九、已知坑
 
@@ -101,12 +101,12 @@
 
 ## 十、每日日志规范
 
-- 每天一篇，写在 `obsidian/每日日志/YYYY-MM-DD.md`，当天结束时更新（≤10min）。
+- 每天一篇，写在 `obsidian/每日日志/YYYY-MM-DD.md`，当天结束时更新（≤10min）；frontmatter 写 `date: YYYY-MM-DD`（Bases 索引依赖）。
 - **三栏**：
   1. **今日推进**：做了什么（含关键 commit/命令）。
   2. **卡点**：卡住的问题；需要用户手动做的事（sudo/浏览器/GUI/采购等）详录到命令级。
   3. **明日一击**：明天最重要的一件事。
-- 底部加 `[[wikilinks]]` 关联（Index / TIL / 术语表）。
+- 底部加 `[[wikilinks]]` 关联（Index / somezhishi / 归档术语表）。
 - 当天写完随代码一起 `git commit`。
 
 ## 十一、工程惯例

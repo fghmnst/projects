@@ -1,0 +1,24 @@
+filters:
+  and:
+    - file.inFolder("课程笔记")
+    - file.ext == "md"
+    - file.name != "课程笔记"
+properties:
+  course:
+    displayName: 课程
+  goal:
+    displayName: 目标
+  track:
+    displayName: 定位
+views:
+  - type: table
+    name: 课程
+    order:
+      - file.name
+      - course
+      - goal
+      - track
+      - file.mtime
+    sort:
+      - property: file.name
+        direction: ASC

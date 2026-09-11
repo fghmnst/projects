@@ -1,0 +1,27 @@
+filters:
+  and:
+    - 'file.ext == "md"'
+    - 'file.name != "每日日志"'
+
+views:
+  - type: table
+    name: 本学期
+    filters:
+      and:
+        - file.inFolder("每日日志")
+    order:
+      - file.name
+      - file.mtime
+    sort:
+      - property: file.name
+        direction: DESC
+  - type: table
+    name: 归档
+    filters:
+      and:
+        - file.inFolder("归档/30天学习/每日日志")
+    order:
+      - file.name
+    sort:
+      - property: file.name
+        direction: DESC
