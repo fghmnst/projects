@@ -8,8 +8,8 @@ tags:
 
 # Hermes 云部署指南（飞书每日推送）
 
-**日期**：2026-08-06 初版（QQ）→ 2026-08-10 迁移至飞书
-**场景**：在云服务器上配置 Hermes Agent，让它每天 7:00 通过飞书机器人推送「昨日小结 + 今日待办」，内容来自 GitHub 私有仓库的每日日志。
+**日期**：2026-08-06 初版（QQ）→ 2026-08-10 迁移至飞书 → 2026-09-13 升级（课表 + 待办 + 建议；推送规范迁入 `.hermes.md` §9）
+**场景**：在云服务器上配置 Hermes Agent，让它每天 7:00 通过飞书机器人推送「今日课表 + 昨日小结 + 今日待办 + 今日建议」，数据来自 GitHub 仓库的课程表、每日日志与周待办。
 
 ## 平台选型：QQ/微信 → 飞书
 
@@ -25,9 +25,9 @@ tags:
 
 ```
 每天 07:00（Asia/Shanghai）→ 服务器 Hermes cron 触发
-  → git pull 私有仓库 projects
-  → 读取 obsidian/每日日志/ 昨天的日志
-  → 生成【昨日小结】【今日待办】
+  → git pull 仓库 projects
+  → 读课程表 + 昨日日志 + 当周未完成待办（规范见 .hermes.md §9）
+  → 生成【今日课表】【昨日小结】【今日待办】【今日建议】
   → 推送到你的飞书（机器人私聊）
 ```
 
@@ -153,7 +153,7 @@ hermes cron create "0 7 * * *" "$(cat /tmp/cron_prompt.txt)" \
 
 - `--deliver feishu`：agent 的最终回复自动推到飞书（home_channel 指定）
 - `--workdir`：任务在该目录运行，自动加载仓库上下文文件（`.hermes.md`，优先级高于 AGENTS.md）
-- 完整 prompt 见文末附录，核心指令：`git pull` → 读昨天日志 → 输出小结与待办
+- 完整 prompt 见文末附录；推送规范唯一事实源为仓库 `.hermes.md` §9（git pull → 课表 + 日志 + 待办 → 推飞书）
 
 验证：
 
@@ -180,50 +180,29 @@ grep "delivered to feishu" ~/.hermes/logs/agent.log   # 确认投递成功
 | 事项 | 说明 |
 |------|------|
 | 每晚 `git commit` 每日日志 | cron 每次先 `git pull`，不提交就读不到最新日志 |
+| 改推送规范 | 改仓库 `.hermes.md` §9（或 `obsidian/课程表.md` 等数据文件）→ commit+push，cron 下次运行 `git pull` 后自动生效 |
 | 查推送是否成功 | `grep "delivered to feishu" ~/.hermes/logs/agent.log` |
 | 健康检查 | `hermes doctor`；`hermes gateway status --system` |
 | 换 provider | `hermes model`，与部署无关，随时可改 |
 
-## 附录：daily-digest 任务 prompt（可复现，飞书格式版）
+## 附录：daily-digest 任务 prompt（2026-09-13 起：瘦指针版）
+
+> 推送规范（数据来源 / 执行步骤 / 输出模板 / 容错）已迁入仓库 `.hermes.md` 第 9 节，随 git 同步；改推送内容只需改仓库并 push，无需再动服务器。
+
+cron prompt 现为：
 
 ```
-你是用户的学习助理。当前服务器时区为 Asia/Shanghai。请按以下步骤执行并输出：
-
-1. 先运行 git -C /home/fghmnst/projects pull --quiet 拉取最新提交（若拉取失败直接继续）。
-2. 在 /home/fghmnst/projects/obsidian/每日日志/ 目录中，找到「昨天」的日志文件
-   （文件名格式 YYYY-MM-DD.md，昨天 = 今天减一天；若不存在则取最近一篇，并在开头注明）。
-3. 【昨日小结】：阅读该日志的「今日完成事项」栏目，用 3-5 条要点总结昨天完成的工作
-   （保留关键 commit/命令信息）。
-4. 【今日待办】：从该日志的「计划/工作流待办」和「疑惑点」栏目提取今天应该做的事项；
-   若内容不足，参考 30天学习 Index.md 的学习计划补充 1-2 条建议事项。
-5. 最终回复必须严格使用以下格式模板（飞书端渲染规范：支持 #/## 标题、**加粗**、- 列表、
-   > 引用、`代码`；禁止表格、超长代码块、嵌套列表超过 2 层；总长度控制在 500 字以内）：
-
-## 📅 每日推送 · YYYY年M月D日（星期X）
----
-## 📝 昨日小结（YYYY-MM-DD）
-**🎓 主线学习**
-- 要点（每条一行，保留关键 commit/命令信息）
-**🐍 副线编程**
-- 要点
-**📚 Vault 整理**
-- 要点
-**🔧 工具链**
-- 要点
----
-## 📋 今日待办
-**🎯 重点任务**
-- ...
-**🔍 调查 & 确认**
-- ...
-**🛠️ 运维 & 探索**
-- ...
----
-## 💡 小提示
-- 1-2 条建议
-
-要求：层次分明、每条一行、重点加粗、适度留白。不要输出除最终报告以外的多余内容。
+你是用户的学习助理。请严格按仓库 .hermes.md 第 9 节「daily-digest 每日推送规范」执行，并将最终报告作为最终回复输出。
 ```
+
+首次切换/重建时在服务器执行（`hermes cron edit` 支持用任务名引用）：
+
+```bash
+cd ~/projects && git pull --quiet
+~/.local/bin/hermes cron edit daily-digest --prompt "你是用户的学习助理。请严格按仓库 .hermes.md 第 9 节「daily-digest 每日推送规范」执行，并将最终报告作为最终回复输出。"
+```
+
+验证：`~/.local/bin/hermes cron run daily-digest` → 飞书收到推送；`grep "delivered to feishu" ~/.hermes/logs/agent.log`。
 
 ## 术语
 
