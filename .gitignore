@@ -31,6 +31,9 @@ obsidian/**/*.gif
 obsidian/**/*.pdf
 obsidian/**/*.svg
 
+# Remotely Save：用户本人配置与操作（可能含远端凭据），agent 禁读禁写、不入库
+obsidian/.obsidian/plugins/remotely-save/
+
 # 敏感信息
 *.key
 *.pem
