@@ -2,5 +2,6 @@
   "obsidian-minimal-settings",
   "obsidian-tasks-plugin",
   "templater-obsidian",
-  "calendar"
+  "calendar",
+  "remotely-save"
 ]
