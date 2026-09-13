@@ -1,6 +1,6 @@
 [
   "obsidian-minimal-settings",
-  "calendar",
   "obsidian-tasks-plugin",
-  "templater-obsidian"
+  "templater-obsidian",
+  "calendar"
 ]
