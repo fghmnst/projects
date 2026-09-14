@@ -8,8 +8,8 @@ tags:
 
 # Hermes 云部署指南（飞书每日推送）
 
-**日期**：2026-08-06 初版（QQ）→ 2026-08-10 迁移至飞书 → 2026-09-13 升级（课表 + 待办 + 建议；推送规范迁入 `.hermes.md` §9）→ 2026-09-13 增补「今日训练」（§9 概要 + §10 完整列表双推）
-**场景**：在云服务器上配置 Hermes Agent，让它每天 7:00 通过飞书机器人推送「今日课表 + 今日训练 + 昨日小结 + 今日待办 + 今日建议」（训练日 7:05 追加一条完整动作列表），数据来自 GitHub 仓库的课程表、训练执行表、每日日志与周待办。
+**日期**：2026-08-06 初版（QQ）→ 2026-08-10 迁移至飞书 → 2026-09-13 升级（课表 + 待办 + 建议；推送规范迁入 `.hermes.md` §9）→ 2026-09-13 增补「今日训练」（§9 概要 + §10 完整列表双推）→ 2026-09-14 训练日改周三/五/日，daily-training 详细推送暂停（只留 7:00 daily-digest）
+**场景**：在云服务器上配置 Hermes Agent，让它每天 7:00 通过飞书机器人推送「今日课表 + 今日训练 + 昨日小结 + 今日待办 + 今日建议」，数据来自 GitHub 仓库的课程表、训练执行表、每日日志与周待办。原训练日 7:05 的完整动作列表推送（daily-training）已于 2026-09-14 暂停，任务保留可恢复。
 
 ## 平台选型：QQ/微信 → 飞书
 
@@ -29,7 +29,7 @@ tags:
   → 读课程表 + 训练执行表 + 昨日日志 + 当周未完成待办（规范见 .hermes.md §9）
   → 生成【今日课表】【今日训练】【昨日小结】【今日待办】【今日建议】
   → 推送到你的飞书（机器人私聊）
-训练日 07:05 → daily-training cron（周一/三/五/六）
+训练日 07:05 → daily-training cron（周三/五/日）【已暂停，2026-09-14 起不再推送】
   → 读训练执行表 + 训练计划 → 推送【完整动作列表】（规范见 .hermes.md §10）
 ```
 
@@ -197,7 +197,7 @@ daily-digest prompt（`0 7 * * *`）：
 你是用户的学习助理。请严格按仓库 .hermes.md 第 9 节「daily-digest 每日推送规范」执行，并将最终报告作为最终回复输出。
 ```
 
-daily-training prompt（`5 7 * * 1,3,5,6`，训练日 7:05 追加推送）：
+daily-training prompt（`5 7 * * 0,3,5,6`，训练日 7:05 追加推送；**当前已暂停**）：
 
 ```
 你是用户的训练助理。请严格按仓库 .hermes.md 第 10 节「daily-training 每日训练详情推送规范」执行，并将最终报告作为最终回复输出。
@@ -208,10 +208,18 @@ daily-training prompt（`5 7 * * 1,3,5,6`，训练日 7:05 追加推送）：
 ```bash
 cd ~/projects && git pull --quiet
 ~/.local/bin/hermes cron edit daily-digest --prompt "你是用户的学习助理。请严格按仓库 .hermes.md 第 9 节「daily-digest 每日推送规范」执行，并将最终报告作为最终回复输出。"
-~/.local/bin/hermes cron create "5 7 * * 1,3,5,6" "你是用户的训练助理。请严格按仓库 .hermes.md 第 10 节「daily-training 每日训练详情推送规范」执行，并将最终报告作为最终回复输出。" --deliver feishu --workdir /home/fghmnst/projects --name daily-training
+~/.local/bin/hermes cron create "5 7 * * 0,3,5,6" "你是用户的训练助理。请严格按仓库 .hermes.md 第 10 节「daily-training 每日训练详情推送规范」执行，并将最终报告作为最终回复输出。" --deliver feishu --workdir /home/fghmnst/projects --name daily-training
 ```
 
 验证：`~/.local/bin/hermes cron list` 能看到两个任务；`~/.local/bin/hermes cron run daily-digest` / `cron run daily-training` → 飞书收到推送；`grep "delivered to feishu" ~/.hermes/logs/agent.log`。
+
+暂停 / 恢复 / 删除 daily-training（2026-09-14 已暂停）：
+
+```bash
+~/.local/bin/hermes cron pause daily-training    # 暂停（可恢复）
+~/.local/bin/hermes cron resume daily-training   # 恢复
+~/.local/bin/hermes cron remove daily-training   # 删除（不可恢复）
+```
 
 ## 术语
 
