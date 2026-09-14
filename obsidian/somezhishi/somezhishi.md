@@ -22,6 +22,7 @@ date: 2026-09-11
 | [[somezhishi/环境排障/Obsidian-启动排障\|Obsidian 启动排障]] | 依赖缺失、T 态挂起、WSLg 窗口不可见 |
 | [[somezhishi/环境排障/WSL-串口权限-dialout组与chmod临时方案\|WSL 串口权限]] | dialout 组与 chmod 临时方案 |
 | [[somezhishi/环境排障/Hermes-云部署指南-飞书每日推送\|Hermes 云部署指南]] | 飞书每日推送：部署、踩坑、日常运维 |
+| [[somezhishi/环境排障/VSCode-C++插件-IntelliSense配置与gcc-g++区别\|VS Code C/C++ 插件]] | IntelliSense 告警根因、远程设置修复、gcc/g++ 区别 |
 
 ## 编程基础
 
