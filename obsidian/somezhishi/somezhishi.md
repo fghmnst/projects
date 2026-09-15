@@ -14,6 +14,7 @@ date: 2026-09-11
 | [[somezhishi/工具速查/opencode-TUI-速查表\|opencode TUI 速查表]] | 斜杠指令、输入语法、本机自定义键位 |
 | [[somezhishi/工具速查/tmux-共享终端操作手册\|tmux 共享终端操作手册]] | 进入方式、日常操作全表、故障排查 |
 | [[somezhishi/工具速查/Translate-Pro-快捷键速查表\|Translate Pro 快捷键速查表]] | 划词翻译快捷键与使用提示 |
+| [[somezhishi/工具速查/GitHub贡献计算-规则与排查\|GitHub 贡献计算]] | 计入规则、push 与邮箱分工、隐私配置与排查 |
 
 ## 环境排障
 
