@@ -40,6 +40,7 @@ date: 2026-09-11
 | 笔记 | 一句话 |
 |---|---|
 | [[somezhishi/项目笔记/视觉目标追踪方案对比\|视觉目标追踪方案对比]] | HSV vs 更普适方案、本项目决策与实测 |
+| [[somezhishi/项目笔记/STM32工具链-CubeMX与CubeCLT详解\|STM32 工具链：CubeMX 与 CubeCLT]] | 二者分工、arm-none-eabi-gcc 下载方式、本机工具盘点 |
 
 ## 标签
 

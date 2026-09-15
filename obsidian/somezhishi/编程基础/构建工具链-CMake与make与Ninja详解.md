@@ -165,4 +165,5 @@ STM32 全系、树莓派 Pico（Cortex-M0+）、nRF 等 Cortex-M 裸机开发。
 ## 关联
 
 - [[somezhishi/somezhishi|somezhishi]]
+- [[somezhishi/项目笔记/STM32工具链-CubeMX与CubeCLT详解|STM32 工具链：CubeMX 与 CubeCLT 详解]]
 - [[somezhishi/环境排障/VSCode-C++插件-IntelliSense配置与gcc-g++区别|VS Code C/C++ 插件：IntelliSense 配置与 gcc/g++ 区别]]
