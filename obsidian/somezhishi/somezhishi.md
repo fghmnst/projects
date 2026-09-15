@@ -34,6 +34,7 @@ date: 2026-09-11
 | [[somezhishi/编程基础/Git多远程-切换与双仓库同步\|Git 多远程]] | 切换远程、双仓库同步、排查速查 |
 | [[somezhishi/编程基础/SSH密钥-修改口令与ssh-keygen参数详解\|SSH 密钥]] | 修改/移除口令、ssh-keygen 参数 |
 | [[somezhishi/编程基础/构建工具链-CMake与make与Ninja详解\|构建工具链：CMake/make/Ninja]] | 三者关系、apt 前置与包名坑、交叉编译器 arm-none-eabi-gcc |
+| [[somezhishi/编程基础/RAG与MCP-概念与本仓库适用性判断\|RAG 与 MCP]] | 概念、关系、本仓库为何暂不需要、触发条件 |
 
 ## 项目笔记
 
