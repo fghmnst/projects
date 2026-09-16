@@ -3,6 +3,7 @@ filters:
     - file.inFolder("课程笔记")
     - file.ext == "md"
     - file.name != "课程笔记"
+    - file.hasProperty("goal")
 properties:
   course:
     displayName: 课程
