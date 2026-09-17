@@ -43,6 +43,7 @@
 - 知识库（vault）位于 **`~/SomeThingFunny/projects/obsidian`**（随本仓库 git 管理）。结构：`2026秋 Index.md`（学期入口）、`2026-2027 大二上学期学习计划.md`、`每日日志/`（含 Bases 自动索引）、`周复盘/`、`课程笔记/`（含 Bases 自动索引）、`somezhishi/`（沉淀子库，原 `TIL/` 已并入）、`归档/30天学习/`（30 天阶段历史）。
 - **目录约定**：每个目录有同名索引笔记；Wikilink 一律写**显式路径**（如 `[[somezhishi/somezhishi|somezhishi]]`），不要用短名。
 - **课程笔记结构**：每课一个子文件夹 + 同名主笔记（只放课程信息 / 笔记索引 / 错题）；**知识点一律单开独立笔记**（一主题一篇、连字符命名、`date` frontmatter，如 `课程笔记/复变函数/复数n次方根-公式为何包含全部根.md`），由主笔记 `## 笔记` 区 Wikilink 索引，**不写进课程介绍里**；笔记公式用 Obsidian MathJax（`$...$` / `$$...$$`）排版。
+- **新手向写作风格（2026-09-17 起，用户指定）**：课程笔记、问答类笔记，以及回答用户临时抛出的琐碎问题，一律用**新手向通俗写法**——先用画面/比喻建立直觉（如"表盘转圈""倒置望远镜"），术语出现时当场用大白话解释，公式给"不用背"的读法；文末附「术语小词典」表 + 折叠「自测」（`> [!question]-`）。范例：`课程笔记/复变函数/无穷远点的邻域-为什么是圆外.md`。
 - **somezhishi 子库**（`obsidian/somezhishi/`，已纳入本仓库跟踪）遵循其自己的 `AGENTS.md`：日期 frontmatter、初学者向、一主题一篇、文件名用连字符；分 `工具速查/`、`环境排障/`、`编程基础/`、`项目笔记/` 四个子文件夹（不设同名索引），由顶层 `somezhishi/somezhishi.md` 统一导航。环境运维/工具坑（原 `TIL/`）与通用知识卡都进此库。
 - **Obsidian 启动**：GUI 用 `~/.local/bin/obsidian-gui`（封装 `~/Downloads/Obsidian-1.13.7.AppImage`，WSLg/Wayland）；官方 CLI 在 `~/.local/bin/obsidian`，**要求 App 运行中**才能用。
 - **操作约定**：涉及 vault 的读/写优先用 obsidian CLI 与技能（`obsidian-cli` / `obsidian-markdown` / `obsidian-bases` / `json-canvas` / `defuddle`）；纯 markdown 文本可直接编辑源文件；教学场景用 `teach` 技能。
