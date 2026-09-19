@@ -6,6 +6,10 @@ cmake-build-*/
 *.bin
 *.hex
 
+# C 阶梯：编译出的可执行文件不入库（源码 + Makefile 才是产物）
+# 注意用单层 *，防 ** 匹配零层把源码目录整体忽略
+C-tools/*/note-stats
+
 # Python
 __pycache__/
 *.pyc
