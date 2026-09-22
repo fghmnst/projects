@@ -4,6 +4,18 @@
 #include <sys/stat.h>
 
 #define PATH_MAX_LEN 1024
+#define LINE_MAX_LEN 4096
+
+typedef struct {
+    long lines;
+    long chars;
+} FileStats;
+
+typedef struct {
+    long files;
+    long lines;
+    long chars;
+} Totals;
 
 static int has_md_suffix(const char *name)
 {
@@ -11,7 +23,32 @@ static int has_md_suffix(const char *name)
     return len > 3 && strcmp(name + len - 3, ".md") == 0;
 }
 
-static int scan_dir(const char *dirpath, long *count)
+static int analyze_file(const char *path, FileStats *out)
+{
+    FILE *fp = fopen(path, "r");
+    if (fp == NULL) {
+        perror(path);
+        return -1;
+    }
+
+    out->lines = 0;
+    out->chars = 0;
+
+    char buf[LINE_MAX_LEN];
+    while (fgets(buf, sizeof(buf), fp) != NULL) {
+        out->lines++;
+        for (const unsigned char *p = (const unsigned char *)buf; *p != '\0'; p++) {
+            if ((*p & 0xC0) != 0x80) {
+                out->chars++;
+            }
+        }
+    }
+
+    fclose(fp);
+    return 0;
+}
+
+static int scan_dir(const char *dirpath, Totals *tot)
 {
     DIR *dir = opendir(dirpath);
     if (dir == NULL) {
@@ -39,10 +76,15 @@ static int scan_dir(const char *dirpath, long *count)
         }
 
         if (S_ISDIR(st.st_mode)) {
-            scan_dir(path, count);
+            scan_dir(path, tot);
         } else if (S_ISREG(st.st_mode) && has_md_suffix(entry->d_name)) {
-            printf("%s\n", path);
-            (*count)++;
+            FileStats fs;
+            if (analyze_file(path, &fs) == 0) {
+                printf("%6ld 字  %6ld 行  %s\n", fs.chars, fs.lines, path);
+                tot->files++;
+                tot->lines += fs.lines;
+                tot->chars += fs.chars;
+            }
         }
     }
 
@@ -57,11 +99,11 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    long count = 0;
-    if (scan_dir(argv[1], &count) != 0) {
+    Totals tot = {0};
+    if (scan_dir(argv[1], &tot) != 0) {
         return 1;
     }
 
-    printf("共 %ld 个 .md 文件\n", count);
+    printf("\n共 %ld 个 .md 文件，%ld 行，%ld 字\n", tot.files, tot.lines, tot.chars);
     return 0;
 }
