@@ -9,7 +9,7 @@ tags:
 # Obsidian 启动排障：依赖缺失、T 态挂起与 WSLg 窗口不可见
 
 > [!note] 说明
-> 本文合并自 2026-08-04（AppImage 依赖缺失）与 2026-08-11（GUI 不出窗口）两篇排障记录，按「故障一 / 故障二」组织。
+> 本文合并自 2026-08-04（AppImage 依赖缺失）、2026-08-11（GUI 不出窗口）两篇排障记录，按「故障一 / 故障二 / 故障三」组织。
 > 环境：WSL2 Ubuntu-24.04 + WSLg，Obsidian Linux AppImage（Obsidian 1.13.x）。
 
 ## 故障一：AppImage 依赖缺失（libnspr4 / libasound2）
@@ -163,6 +163,52 @@ nohup env APPIMAGE_EXTRACT_AND_RUN=1 ~/bin/Obsidian.AppImage >/tmp/obsidian.log 
 ### 为什么不直接做脚本/符号链接
 
 alias 是 bash 特性，展开后等价于亲手输入该命令，环境变量继承最干净；脚本也可行但多一层封装。唯一限制：只在交互式终端可用（这正是预期场景——「输入命令即开 GUI」）。
+
+## 故障三：运行中卡死（WSLg 渲染通道停摆）+ 启动器与 CLI 配套修复
+
+**时间**：2026-09-23 晚。**现象**：Obsidian 用着用着窗口假死（点击无反应），但进程全部存活、CPU 接近 0；重跑 `obsidian-gui` 不弹窗口、反而打印 CLI 帮助；`obsidian` CLI 报 `The CLI is unable to find Obsidian`。
+
+### 定位（weston 日志是关键证据）
+
+- `/mnt/wslg/weston.log` 里窗口 `0x5` 从启动起持续刷：
+
+  ```
+  surface width/height doesn't match with buffer (windowId:0x5)
+  	surface width 1204, height 842
+  	buffer width 2408, height 1684
+  ```
+
+  共 4449 条（约 1.6 条/秒，倍增缓冲来自 `--force-device-scale-factor=2`）
+- 卡死时 weston 日志**完全停止写入**（23:22:13 后 85 秒+ 无输出）→ 是 WSLg 合成器停摆，不是 Obsidian 逻辑死锁
+- 内存充足、进程无 T 态 → 排除资源/作业控制类原因
+
+### 渲染路径与 RDP 的关系（为什么 WSLg 这么脆）
+
+```
+Obsidian (Electron，GPU 走 Mesa d3d12)
+  → Wayland（或 X11/XWayland）
+    → weston（WSLg 合成器，rdp-backend + rdprail-shell，FreeRDP）
+      → RDP 图形重定向 + 共享内存 /mnt/shared_memory
+        → Windows 端 MSRDC 客户端 → 屏幕上的“Windows 窗口”
+```
+
+WSLg 的本质是**本地 RDP 远程桌面 + RAIL**：每个 Linux 窗口被编码成 RDP 表面传给 Windows 客户端。所以「任务栏有图标但窗口不显示」「buffer 不匹配刷屏」「Xwayland 一起死」都发生在这一层。
+
+### 处置
+
+| 步骤 | 做法 | 结果 |
+|---|---|---|
+| 1. 止损 | 杀掉 Obsidian 全部进程（注意 Electron 子进程是小写 `obsidian`），清理 Singleton 锁 | weston 日志恢复写入 |
+| 2. 换渲染协议 | 启动器 `--ozone-platform=wayland` → `x11` | weston `doesn't match` 告警归零（观察中） |
+| 3. 修启动器 | 实例检测：已在运行则给提示，不再触发 AppImage 的 CLI 透传 | 不再“弹 CLI 帮助” |
+| 4. 修 CLI 环境 | `XDG_RUNTIME_DIR` 改用系统默认 `/run/user/<uid>`（WSLg 已给 wayland socket 做 symlink，无需覆盖） | `obsidian` CLI 正常连上 App |
+
+### 容易踩的坑（记住）
+
+1. **AppImage 第二次执行 = CLI 透传**：同一时刻只有一个 GUI 实例；已有实例时再执行 AppImage 会把参数当 CLI 命令处理，无参数就打印帮助。**这不是故障**；需要重开用 `obsidian restart`。
+2. **CLI 靠 socket 找 App**：socket 路径是 `$XDG_RUNTIME_DIR/.obsidian-cli.sock`。启动 App 和运行 CLI 的 `XDG_RUNTIME_DIR` 必须一致，否则报 `unable to find Obsidian`。本机统一用 `/run/user/<uid>`。
+3. 卡死后 X 服务可能一并死（`xwininfo: unable to open display ":0"`、Electron 段错误）→ `wsl --shutdown` 重启 WSLg 最干净；手动拉起 Xwayland 仅应急（会退回软件渲染）。
+4. 启动器回滚包：`~/.local/bin/obsidian-gui.bak-20260923`（旧 Wayland 版）。
 
 ## 关联
 

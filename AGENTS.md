@@ -45,7 +45,7 @@
 - **课程笔记结构**：每课一个子文件夹 + 同名主笔记（只放课程信息 / 笔记索引 / 错题）；**知识点一律单开独立笔记**（一主题一篇、连字符命名、`date` frontmatter，如 `课程笔记/复变函数/复数n次方根-公式为何包含全部根.md`），由主笔记 `## 笔记` 区 Wikilink 索引，**不写进课程介绍里**；笔记公式用 Obsidian MathJax（`$...$` / `$$...$$`）排版。
 - **新手向写作风格（2026-09-17 起，用户指定）**：课程笔记、问答类笔记，以及回答用户临时抛出的琐碎问题，一律用**新手向通俗写法**——先用画面/比喻建立直觉（如"表盘转圈""倒置望远镜"），术语出现时当场用大白话解释，公式给"不用背"的读法；文末附「术语小词典」表 + 折叠「自测」（`> [!question]-`）。范例：`课程笔记/复变函数/无穷远点的邻域-为什么是圆外.md`。
 - **somezhishi 子库**（`obsidian/somezhishi/`，已纳入本仓库跟踪）遵循其自己的 `AGENTS.md`：日期 frontmatter、初学者向、一主题一篇、文件名用连字符；分 `工具速查/`、`环境排障/`、`编程基础/`、`项目笔记/` 四个子文件夹（不设同名索引），由顶层 `somezhishi/somezhishi.md` 统一导航。环境运维/工具坑（原 `TIL/`）与通用知识卡都进此库。
-- **Obsidian 启动**：GUI 用 `~/.local/bin/obsidian-gui`（封装 `~/Downloads/Obsidian-1.13.7.AppImage`，WSLg/Wayland）；官方 CLI 在 `~/.local/bin/obsidian`，**要求 App 运行中**才能用。
+- **Obsidian 启动**：GUI 用 `~/.local/bin/obsidian-gui`（封装 `~/Downloads/Obsidian-1.13.7.AppImage`，WSLg + X11 + 系统默认 `XDG_RUNTIME_DIR`；旧 Wayland 版备份 `.bak-20260923`）。**单实例**：已在运行时执行只给提示、不重开（需重开用 `obsidian restart`）；官方 CLI 在 `~/.local/bin/obsidian`，**要求 App 运行中**且与 App 共用同一 `XDG_RUNTIME_DIR`。
 - **操作约定**：涉及 vault 的读/写优先用 obsidian CLI 与技能（`obsidian-cli` / `obsidian-markdown` / `obsidian-bases` / `json-canvas` / `defuddle`）；纯 markdown 文本可直接编辑源文件；教学场景用 `teach` 技能。
 - git 跟踪 vault 内 **markdown 笔记 + `.obsidian/` 配置**（设备相关文件与图片被 `.gitignore` 排除）。
 
@@ -100,7 +100,7 @@
 - 激光头与摄像头不重合导致打偏：需 `OFFSET_X`/`OFFSET_Y` 视差补偿。
 - 2×SG90 需 5V/2A 独立供电，不要全从板子 USB 口取电。
 - WSL 串口权限：CH340 → `/dev/ttyUSB0`，需 `dialout` 组；临时绕过 `sudo chmod 666 /dev/ttyUSB0`（重新枚举后失效）。
-- Obsidian 在 WSLg 下必须走 `obsidian-gui`（设 `XDG_RUNTIME_DIR=/mnt/wslg/runtime-dir` + Wayland），不要直接跑 AppImage。
+- Obsidian 一律走 `~/.local/bin/obsidian-gui`；不要直接跑 AppImage（实例已存在时会被转成 CLI 透传打印帮助）。WSLg 运行中卡死/渲染排查见 `obsidian/somezhishi/环境排障/Obsidian-启动排障.md` 故障三。
 
 ## 十、每日日志规范
 

@@ -25,6 +25,8 @@ date: 2026-09-11
 | [[somezhishi/环境排障/WSL-串口权限-dialout组与chmod临时方案\|WSL 串口权限]] | dialout 组与 chmod 临时方案 |
 | [[somezhishi/环境排障/Hermes-云部署指南-飞书每日推送\|Hermes 云部署指南]] | 飞书每日推送：部署、踩坑、日常运维 |
 | [[somezhishi/环境排障/VSCode-C++插件-IntelliSense配置与gcc-g++区别\|VS Code C/C++ 插件]] | IntelliSense 告警根因、远程设置修复、gcc/g++ 区别 |
+| [[somezhishi/环境排障/opencode-自签证书报错-排查与禁用校验风险\|opencode 自签证书报错]] | 上游 WAF 瞬时占位证书、三步排查套路、禁用校验的风险与 MITM 科普 |
+| [[somezhishi/环境排障/opencode-TUI-中文变透明-宽字符重绘问题\|opencode TUI 中文变透明]] | 宽字符局部重绘 bug、Ctrl+P 刷新缓解、上游 issue 与上报模板 |
 
 ## 编程基础
 
