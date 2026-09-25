@@ -28,6 +28,7 @@ date: 2026-09-11
 | [[somezhishi/环境排障/VSCode-C++插件-IntelliSense配置与gcc-g++区别\|VS Code C/C++ 插件]] | IntelliSense 告警根因、远程设置修复、gcc/g++ 区别 |
 | [[somezhishi/环境排障/opencode-自签证书报错-排查与禁用校验风险\|opencode 自签证书报错]] | 上游 WAF 瞬时占位证书、三步排查套路、禁用校验的风险与 MITM 科普 |
 | [[somezhishi/环境排障/opencode-TUI-中文变透明-宽字符重绘问题\|opencode TUI 中文变透明]] | 宽字符局部重绘 bug、Ctrl+P 刷新缓解、上游 issue 与上报模板 |
+| [[somezhishi/环境排障/GitHub-不挂代理也能推送-原因与排查\|GitHub 不挂代理也能推送]] | 间歇性干扰、SSH 22 vs HTTPS 443、隐形代理三步自查、ssh.github.com:443 备用通道 |
 
 ## 编程基础
 
