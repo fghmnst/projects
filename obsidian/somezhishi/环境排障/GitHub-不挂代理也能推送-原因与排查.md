@@ -88,6 +88,53 @@ Host github.com
 **方案三：走代理。**
 给 git 单独配代理（不影响其他程序），或让代理软件 TUN 模式接管。配了 443 通道后一般用不到这步。
 
+## 另一类推送失败：GH007 邮箱隐私保护（2026-09-26 补充）
+
+> [!warning] 先分清两类失败
+> 上面的排查和备用方案都针对**网络类**失败；还有一类失败**与网络无关**，报错里会出现 `GH007` / `email privacy` 字样——本文 2026-09-26 亲历（当时网络、密钥、分支全正常，`git ls-remote` 秒回，唯独 push 被拒）。
+
+**现象**：网络排查全过，但 `git push` 被服务端拒收，典型报错：
+
+```
+remote: error: GH007: Your push would publish a private email.
+! [remote rejected] main -> main (push declined due to email privacy restrictions)
+```
+
+**背景机制**：GitHub 的「Keep my email address private」（保持邮箱私密）设置自带一个勾选项 **"Block command line pushes that expose my email"**：一旦开启，任何**作者邮箱没有登记在你 GitHub 账号下**的 commit，都会在推送时被 GitHub 直接拒收——目的是保护你的真实邮箱不进入公开历史。
+
+**这次踩的坑：多台电脑的 gitconfig 各自独立。** 2026-09-15 只把主力机的 `user.email` 换成了 noreply，另一台电脑（8 月装机时配置的）没有同步；9-26 在那台提交的 commit 带真实邮箱 → push 被拦。教训：**noreply 切换不是「改一次全局生效」，每一台电脑都要改。**
+
+### 判据：网络类 vs 邮箱类
+
+| 报错关键词 | 类别 | 处理 |
+|---|---|---|
+| `Connection reset` / `timed out` / `Could not resolve host` | 网络类 | 上方「备用方案」：重试 → 443 通道 → 代理 |
+| `GH007` / `email privacy restrictions` / `would publish a private email` | 邮箱类 | 按下方三步修 |
+
+### 修复三步（适用于 commit 尚未推送）
+
+```bash
+# ① 统一本机邮箱为 GitHub noreply（每台电脑都要做；noreply 地址在 GitHub Settings → Emails 里找）
+git config --global user.email "数字+用户名@users.noreply.github.com"
+
+# ② 修正还没推送的 commit 的作者邮箱（--reset-author 用当前配置重写作者）
+git commit --amend --no-edit --reset-author
+
+# ③ 验证后推送
+git log -1 --format='%ae'   # 应显示 noreply 地址
+git push
+```
+
+- 若 commit **已经推送过**：不能 amend（会改写公开历史），只能把旧邮箱加进 GitHub 账号来消除影响（见 [[somezhishi/工具速查/GitHub贡献计算-规则与排查|GitHub 贡献计算]]）；
+- 判断本机正在用哪个文件里的邮箱：`git config --show-origin user.email`，输出里 `file:` 后面的路径就是来源（本仓库没有仓库级配置时，来源就是 `~/.gitconfig`）。
+
+### 多机自查清单（换电脑 / 重装系统后各跑一次）
+
+```bash
+git config --show-origin user.email    # 来源文件是否为 ~/.gitconfig、值是否为 noreply
+git log -5 --format='%h %ae'           # 回顾最近几条提交实际用的邮箱
+```
+
 ## 术语小词典
 
 | 术语 | 大白话解释 |
@@ -98,6 +145,7 @@ Host github.com
 | HTTPS | 加密的网页协议，浏览器和 `https://` 链接用的就是它，默认走 443 端口 |
 | 端口 | 一台服务器上的"门牌号"，不同服务在不同门口接待：22 是 SSH 的门，443 是 HTTPS 的门 |
 | `Connection reset` | 连接刚建立就被对方掐断——干扰的典型表现之一 |
+| `GH007` | GitHub 拒收推送的错误代码：要推的 commit 会暴露你的私密邮箱，被服务端拦下（详见上文「另一类推送失败」） |
 
 > [!question]- 自测：不看正文，能答上来吗？
 > 1. GitHub 在大陆是"完全封锁"还是"间歇性干扰"？这两种状态对"昨天失败今天成功"的解释有什么不同？
