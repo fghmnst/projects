@@ -210,6 +210,60 @@ WSLg 的本质是**本地 RDP 远程桌面 + RAIL**：每个 Linux 窗口被编�
 3. 卡死后 X 服务可能一并死（`xwininfo: unable to open display ":0"`、Electron 段错误）→ `wsl --shutdown` 重启 WSLg 最干净；手动拉起 Xwayland 仅应急（会退回软件渲染）。
 4. 启动器回滚包：`~/.local/bin/obsidian-gui.bak-20260923`（旧 Wayland 版）。
 
+## 故障三后续：两机对照分析（2026-09-26）
+
+**背景**：9-23 的假死发生在**主机**（日常主力机，仓库在 `~/SomeThingFunny/projects`）。9-26 换到**拯救者 R9000P**（外接 1080p 显示器方案）后，同款 WSLg + Obsidian AppImage 全天长跑、零告警。本节在 R9000P 上用只读命令采集配置，逐项对照，回答「为什么一台崩、一台不崩」。
+
+### 先分清两台电脑和各自的时间线
+
+| 代号 | 是哪台 | 日期与事件 |
+|---|---|---|
+| **主机**（故障机） | 日常主力机，仓库路径 `~/SomeThingFunny/projects` | 8 月中下旬起主力在此；**09-23** 假死 + weston 刷 4449 条 mismatch，切 X11 缓解 |
+| **R9000P**（正常机） | 拯救者 R9000P（联想 83LV，Ryzen 9 8945HX + RTX 5060），外接 1920x1080 显示器 | `~/bin/Obsidian.AppImage` 落盘于 **08-04**、路径与故障一笔记吻合——8 月上旬的装机与故障一应发生在这台；**09-26** 本节配置采集现场，Obsidian 全天运行零告警 |
+
+> [!note] 反直觉但最关键的发现
+> 两台机器 **WSLg 版本完全相同（都是 1.0.73.2）**，一台反复假死、一台零告警。说明问题**不在 WSLg 版本**，而在两台电脑的**显示环境差异**。因此 9-23 提出的「回退 WSLg 2.6.2（内置 1.0.71）」备选路线，必要性大幅下降。
+
+### 配置对照表
+
+主机列来自 09-23 排障记录；R9000P 列为 09-26 只读采集（`wsl.exe --version`、`/mnt/wslg/versions.txt`、`/mnt/wslg/weston.log`、PowerShell `Win32_VideoController`）。
+
+| 维度 | 主机（故障机） | R9000P（正常机） |
+|---|---|---|
+| WSLg | 1.0.73.2 | **1.0.73.2（完全相同）** |
+| WSL / 内核 | 待补（`wsl --version`） | 2.7.10.0 / 6.18.33.2 |
+| Windows / RDP 客户端 | 待补 | Win11 26100.4652 / MSRDC 1.2.6676 |
+| GPU | 待补 | RTX 5060 Laptop（NVIDIA 驱动 610.88），`/dev/dxg` 正常 |
+| 显示器拓扑 | 主屏 + **spacedesk 虚拟副屏** | **单屏**：外接 1920x1080（RDP 报 `UseMultimon:0`），物理 540x310mm ≈ 24.5 寸 |
+| DPI 缩放 | **200%**（启动器带 `--force-device-scale-factor=2`） | **100%**（weston 日志 `desktopScaleFactor:100, scale:1, clientScale:1.00`） |
+| 渲染协议 | 假死时走 `--ozone-platform=wayland`，已切 x11 | 默认 X11/XWayland（启动零参数） |
+| weston mismatch 告警 | **4449 条**（buffer 2408x1684 ≠ surface 1204x842，约 1.6 条/秒） | **0 条** |
+| 虚拟显示驱动 | spacedesk（网络虚拟屏，常驻） | Parsec / MuMu 已装但**未激活**；**无 spacedesk** |
+
+### 可能原因（按嫌疑从大到小）
+
+1. **200% HiDPI 缩放（头号嫌疑）**。通俗说：200% 缩放 = Windows 按物理像素的 2 倍渲染文字图像，Obsidian 因此被要求交出「2 倍尺寸的画布」（buffer）——但 WSLg 发给它的窗口尺寸（surface）没有同步放大，两者持续对不上，weston 只能每秒刷 1.6 条告警反复重新协商；协商久了合成器停摆。R9000P 是 100% 缩放，buffer 与 surface 永远一致，零告警。WSLg 的 HiDPI 路径本就薄弱（它自己的日志都写着 `enable_fractional_hi_dpi_support=0`，即分数缩放不支持）。
+2. **spacedesk 虚拟副屏（触发器/放大器）**。spacedesk 是「用软件模拟出一块屏幕」的虚拟显示器，靠网络传画面，拓扑随时可能变（断连、休眠、分辨率变化）；每次变化 RDP 客户端都要上报新布局、weston 重建所有窗口表面。「最小化→恢复后收不到帧回调（`wl_callback.done=0`）」正符合多屏拓扑变化下回调断链的 bug 路径。R9000P 单屏、两个虚拟适配器全未激活，拓扑恒定。
+3. **Wayland + 2x 缩放组合（主机已自行缓解）**：假死时主机走 Electron 原生 Wayland；切 X11 后 mismatch 归零。R9000P 天生走 XWayland 默认路径，从未踩进这条路径。
+4. **GPU 驱动（次要）**：R9000P 走 NVIDIA d3d12（WSL 下最成熟的 GPU 路径）；主机 GPU 待补。但本故障是合成器停摆、不是 Electron GPU 崩溃，故排次要。
+5. ~~WSLg 版本回归~~：基本排除，见上方 callout。
+
+### 对实验计划的修正（下一步，回主机执行）
+
+| 优先级 | 实验 | 做法 | 观察点 |
+|---|---|---|---|
+| ① | **E3（本次新增）** | 主屏缩放临时改 100%，或去掉启动器里的 `--force-device-scale-factor=2`，用半天 | `grep -c "doesn't match" /mnt/wslg/weston.log` 是否归零；最小化→恢复是否复现假死。若归零 → 坐实 200% 缩放是主因 |
+| ② | E2 | 停用 spacedesk 副屏后用一天 | 同上 |
+| ③ | E1 | 窗口只放主屏、不拖去 spacedesk | 同上 |
+| 暂缓 | 回退 WSLg 2.6.2 | 同版本 1.0.73.2 在 R9000P 上健康，版本回归基本排除 | — |
+
+**主机待补数据**（下次开机 30 秒，补全上表「待补」三行）：
+
+```powershell
+wsl --version
+Get-CimInstance Win32_VideoController | Select-Object Name,DriverVersion
+```
+
 ## 关联
 
 - [[somezhishi/编程基础/Linux任务控制-JobControl与kill|Linux 任务控制：Job Control 与 kill]]（T 态挂起、nohup/setsid 的底层机制）
