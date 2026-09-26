@@ -13,4 +13,4 @@ add.o: add.c add.h
 .PHONY: clean
 
 clean:
-	rm -f *.o main
+	rm -f *.o
