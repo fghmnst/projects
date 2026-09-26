@@ -10,4 +10,4 @@ note-stats.o: note-stats.c
 .PHONY: clean
 
 clean:
-	rm -f *.o
+	rm -f *.o note-stats
