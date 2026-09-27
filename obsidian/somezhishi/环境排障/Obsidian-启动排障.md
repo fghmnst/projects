@@ -226,19 +226,19 @@ WSLg 的本质是**本地 RDP 远程桌面 + RAIL**：每个 Linux 窗口被编�
 
 ### 配置对照表
 
-主机列来自 09-23 排障记录；R9000P 列为 09-26 只读采集（`wsl.exe --version`、`/mnt/wslg/versions.txt`、`/mnt/wslg/weston.log`、PowerShell `Win32_VideoController`）。
+主机列已于 09-26 下午在主机实测补全（见本页「主机实测复现与归因修正」）；R9000P 列为 09-26 只读采集（`wsl.exe --version`、`/mnt/wslg/versions.txt`、`/mnt/wslg/weston.log`、PowerShell `Win32_VideoController`）。
 
 | 维度 | 主机（故障机） | R9000P（正常机） |
 |---|---|---|
 | WSLg | 1.0.73.2 | **1.0.73.2（完全相同）** |
-| WSL / 内核 | 待补（`wsl --version`） | 2.7.10.0 / 6.18.33.2 |
-| Windows / RDP 客户端 | 待补 | Win11 26100.4652 / MSRDC 1.2.6676 |
-| GPU | 待补 | RTX 5060 Laptop（NVIDIA 驱动 610.88），`/dev/dxg` 正常 |
-| 显示器拓扑 | 主屏 + **spacedesk 虚拟副屏** | **单屏**：外接 1920x1080（RDP 报 `UseMultimon:0`），物理 540x310mm ≈ 24.5 寸 |
-| DPI 缩放 | **200%**（启动器带 `--force-device-scale-factor=2`） | **100%**（weston 日志 `desktopScaleFactor:100, scale:1, clientScale:1.00`） |
-| 渲染协议 | 假死时走 `--ozone-platform=wayland`，已切 x11 | 默认 X11/XWayland（启动零参数） |
-| weston mismatch 告警 | **4449 条**（buffer 2408x1684 ≠ surface 1204x842，约 1.6 条/秒） | **0 条** |
-| 虚拟显示驱动 | spacedesk（网络虚拟屏，常驻） | Parsec / MuMu 已装但**未激活**；**无 spacedesk** |
+| WSL / 内核 | 2.7.13.0 / 6.18.33.2-2 | 2.7.10.0 / 6.18.33.2 |
+| Windows / RDP 客户端 | Win11 26200.8457 / MSRDC 1.2.7214 | Win11 26100.4652 / MSRDC 1.2.6676 |
+| GPU | Intel Arc 130T（d3d12，`/dev/dxg` 正常） | RTX 5060 Laptop（NVIDIA 驱动 610.88），`/dev/dxg` 正常 |
+| 显示器拓扑 | 主屏 3120x2080 + **spacedesk 副屏（2880x1920 激活）**；共 6 个虚拟适配器 | **单屏**：外接 1920x1080（RDP 报 `UseMultimon:0`），物理 540x310mm ≈ 24.5 寸 |
+| DPI 缩放 | **225% 分数缩放**（`AppliedDPI=216`；weston 报 `desktopScaleFactor:225, deviceScaleFactor:180`；F1 启动器已无 `--force-device-scale-factor=2`） | **100%**（weston 日志 `desktopScaleFactor:100, scale:1, clientScale:1.00`） |
+| 渲染协议 | 当前走 wayland + 反节流 flags（9-24 F1 实验版） | 默认 X11/XWayland（启动零参数） |
+| weston mismatch 告警 | **4449 条**（9-23 假死时）；09-26 实测 **1346 条 / 14 分钟，且速率仍在加快** | **0 条** |
+| 虚拟显示驱动 | **6 个**：spacedesk（Running，2880x1920 激活）、IddDesk、Parsec、MuMu、**Honor Virtual（Status: Error）** | Parsec / MuMu 已装但**未激活**；**无 spacedesk** |
 
 ### 可能原因（按嫌疑从大到小）
 
@@ -248,21 +248,49 @@ WSLg 的本质是**本地 RDP 远程桌面 + RAIL**：每个 Linux 窗口被编�
 4. **GPU 驱动（次要）**：R9000P 走 NVIDIA d3d12（WSL 下最成熟的 GPU 路径）；主机 GPU 待补。但本故障是合成器停摆、不是 Electron GPU 崩溃，故排次要。
 5. ~~WSLg 版本回归~~：基本排除，见上方 callout。
 
+> [!note] 09-26 下午修正
+> 主机实测后，本节第 1 条的「200%」应修正为「**225% 分数缩放**」，且「2 倍 buffer 来自 `--force-device-scale-factor=2`」的旧解释被现场证伪——两处修正与两条新证据见下节「主机实测复现与归因修正」。
+
 ### 对实验计划的修正（下一步，回主机执行）
 
 | 优先级 | 实验 | 做法 | 观察点 |
 |---|---|---|---|
-| ① | **E3（本次新增）** | 主屏缩放临时改 100%，或去掉启动器里的 `--force-device-scale-factor=2`，用半天 | `grep -c "doesn't match" /mnt/wslg/weston.log` 是否归零；最小化→恢复是否复现假死。若归零 → 坐实 200% 缩放是主因 |
+| ① | **E3（本次新增；「去掉 flag」这半已被 09-26 下午现场证伪，见下节 v2）** | 主屏缩放临时改整数倍（200% / 100%），用半天 | `grep -c "doesn't match" /mnt/wslg/weston.log` 是否归零；最小化→恢复是否复现假死。若归零 → 坐实分数缩放是主因 |
 | ② | E2 | 停用 spacedesk 副屏后用一天 | 同上 |
 | ③ | E1 | 窗口只放主屏、不拖去 spacedesk | 同上 |
 | 暂缓 | 回退 WSLg 2.6.2 | 同版本 1.0.73.2 在 R9000P 上健康，版本回归基本排除 | — |
 
-**主机待补数据**（下次开机 30 秒，补全上表「待补」三行）：
+**主机数据**：09-26 下午已在主机只读采集补全（写入上表与下节）。
 
-```powershell
-wsl --version
-Get-CimInstance Win32_VideoController | Select-Object Name,DriverVersion
-```
+### 主机实测复现与归因修正（2026-09-26 下午）
+
+**背景**：09-26 下午回到主机（HONORbook14pro）做只读采集，补全上表「待补」数据；采集当下**假死条件正在活跃复现**（weston mismatch 14 分钟刷 1346 条且速率加快），并拿到两条推翻旧归因的新证据。
+
+#### 两条新证据
+
+1. **2 倍 buffer 与 `--force-device-scale-factor=2` 无关**：当前 F1 启动器已不含该 flag，但 buffer 依然精确 2 倍（surface 1032x913 vs buffer 2064x1826）。→ 倍增来自 **225% 分数缩放本身**：WSLg 日志明示 `enable_fractional_hi_dpi_support=0`，weston 把 225% 协商成 deviceScale 180%，Chromium 的 Wayland 缓冲只支持整数倍、交 2x → 每帧错位，永远协商不拢。E3 的「去掉 flag」一半已被现场证伪。
+2. **mismatch 爆发与缩放协商风暴强相关**：13:39:12–13:39:23 scale 五连变（225→200→100→0→200→200），紧接着 13:40 爆发到 355 条/分；13:43–13:45 静止 3 分钟后恢复并加速（130→567 条/分）——正是 9-23 假死前「最小化→恢复后回调断链」的窗口形态。
+
+#### 修正后的嫌疑排序
+
+1. **225% 分数缩放（头号，已实证）**——旧记录只知道「200% + flag」，实际是 225% 分数缩放；R9000P 是 100% 整数倍，永远一致。
+2. **显示拓扑复杂度（触发/放大器）**——spacedesk 常驻激活 + Honor Virtual（Error）+ 共 6 个适配器；任何拓扑/缩放变化触发 RDP 重报 → weston 重建表面（13:39 五连变即现场证据）。
+3. **Wayland 路径（放大器）**——F1 实验版走 wayland，直接暴露在 scale 协商之下；9-23 切 x11 后 mismatch 曾归零。
+4. **次要**：Intel d3d12 vs NVIDIA d3d12、MSRDC/WSL 小版本差异——故障机理在合成器协商层而非 GPU 崩溃层，维持次要。
+5. ~~WSLg 版本回归~~——两机同版本，已排除。
+
+#### 实验计划 v2
+
+| 优先级 | 实验 | 做法 | 观察点 |
+|---|---|---|---|
+| ① E3' | 主屏缩放 225% → 整数倍（优先 200%） | 重启 Obsidian 用半天 | mismatch 是否停止增长；最小化→恢复是否复现 |
+| ② E2 | 停 spacedesk（服务 + 断开副屏客户端） | 观察 scale 五连变是否消失 | 同上 |
+| ③ | 卸载 / 禁用 Honor Virtual Display Device | 设备管理器看状态 | 适配器台账变干净 |
+| ④ | 换回 `obsidian-gui.x11-test-20260923` 对照 | 确认 x11 下是否也随 225% 出现 mismatch | 分离「缩放」与「协议」两个变量 |
+
+#### 结论（2026-09-27 更新）
+
+**E3' 已执行：把主屏缩放从 225% 分数缩放改为整数倍后，obsidian-gui 未再复现崩溃——缩放（分数缩放）为主因得到坐实。** 防复发要点：主屏保持整数倍缩放；spacedesk / Honor Virtual 等虚拟显示设备按需启用、不用时禁用。
 
 ## 关联
 
