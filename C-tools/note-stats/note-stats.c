@@ -1,7 +1,7 @@
-#include<stdio.h>
-#include<dirent.h>
-#include<sys/stat.h>
-#include<string.h>
+#include<stdio.h>  // printf / fprintf / perror / snprintf
+#include<dirent.h> // opendir / readdir / closedir / struct dirent
+#include<sys/stat.h>  // stat / struct stat / S_ISDIR / S_ISREG
+#include<string.h>  
 
 // 判断文件名是否以 ".md" 结尾。返回 1=是，0=否
 // static：只在本文件内可见——单文件程序里的好习惯
@@ -27,28 +27,28 @@ static int scan_dir(const char *dirpath)
 
     struct dirent *entry = readdir(dir);
     while(entry != NULL)
-    {   /*以下没看懂*/
+    {   
         if(strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0)
         {
             continue;
         }
 
         char child[1024];
-        int n = snprintf(child, sizeof child, "%s%s",dirpath, entry->d_name);//最晦涩的一行，基本都是陌生概念
-        if(n < 0 || (size_t)n >= sizeof child)
+        int n = snprintf(child, sizeof child, "%s%s",dirpath, entry->d_name); //n<0则说明发生异常，n >= sizeof child则说明发生了截断，其他情况正常
+        if(n < 0 || (size_t)n >= sizeof child) //size_t 的这一步转化的含义是？
         {
             fprintf(stderr, "路径过长，跳过：%s/%s", dirpath, entry->d_name);
             continue;   
         }
 
         struct stat st;
-        if (stat(child, &st) != 0)
+        if (stat(child, &st) != 0)// 关于stat()，失败返回-1并设置errno，成功返回0并填充struct stat
         {
             perror(child);
             continue;
         }
 
-        if(S_ISDIR(st.st_mode))
+        if(S_ISDIR(st.st_mode))//其中S_ISDIR是一个宏，被展开成一个计算式，计算结果：1 = 是普通文件；0 = 不是
         {
             scan_dir(child);
         }
@@ -58,7 +58,7 @@ static int scan_dir(const char *dirpath)
         }
     
     }
-    /*以上没看懂*/
+    
     closedir(dir);
     return 0;
 
