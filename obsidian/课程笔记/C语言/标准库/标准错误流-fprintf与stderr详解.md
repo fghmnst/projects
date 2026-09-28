@@ -7,7 +7,7 @@ course: C语言
 
 > [!note] 一句话先行
 > 每个程序都有"两张嘴"：`stdout` 说结果（给机器、管道、重定向用），`stderr` 说人话（错误、警告、用法提示）。`printf` 只会走 stdout；`fprintf` 能指定走哪张嘴——`fprintf(stderr, ...)` 就是"这条信息说给人听"的标准写法。
-> 相关：[[课程笔记/C语言/C语言|C语言]] · [[课程笔记/C语言/命令行参数-argc与argv入门|命令行参数：argc 与 argv]] · [[somezhishi/编程基础/Linux重定向-文件描述符与2&1详解|Linux 重定向：文件描述符与 2>&1]]
+> 相关：[[课程笔记/C语言/C语言|C语言]] · [[课程笔记/C语言/语言基础/命令行参数-argc与argv入门|命令行参数：argc 与 argv]] · [[somezhishi/编程基础/Linux重定向-文件描述符与2&1详解|Linux 重定向：文件描述符与 2>&1]]
 
 ## 一、当前 note-stats 干了什么
 

@@ -7,7 +7,7 @@ course: C语言
 
 > [!note] 一句话先行
 > Makefile 是一张**图纸**：写清"每个产物由谁生成、先要谁最新、用哪条命令"。make 从默认目标倒推，逐个比时间戳，**只重做过期的那几步**。本笔记用 `make_test/`（`main.c` + `add.c` + `add.h` + `Makefile`）把这张图纸拆开揉碎，全部结论以实跑为准。
-> 相关：[[课程笔记/C语言/C语言|C语言]] · [[课程笔记/C语言/头文件include-尖括号与双引号的区别|头文件 include：尖括号与双引号的区别]] · [[somezhishi/编程基础/构建工具链-CMake与make与Ninja详解|构建工具链：CMake、make、Ninja 与 arm-none-eabi-gcc]] · [[课程笔记/C语言/P1-note-stats-实现大纲|P1 note-stats 实现大纲]]
+> 相关：[[课程笔记/C语言/C语言|C语言]] · [[课程笔记/C语言/语言基础/头文件include-尖括号与双引号的区别|头文件 include：尖括号与双引号的区别]] · [[somezhishi/编程基础/构建工具链-CMake与make与Ninja详解|构建工具链：CMake、make、Ninja 与 arm-none-eabi-gcc]] · [[课程笔记/C语言/项目实战/P1-note-stats-实现大纲|P1 note-stats 实现大纲]]
 
 ## 一、先建画面：图纸 + 只补坏零件
 
@@ -238,7 +238,7 @@ gcc -Wall -Wextra -std=c11 main.o add.o -o main
 两个小提醒：
 
 - 宏名已从 `FOO_H` 改为 `ADD_H`（2026-09-23）：哨兵名与文件名对应，读的人一眼知道它守卫谁。知识点不变——叫什么都行，**只要全局唯一**；惯例是"文件名大写 + `_H`"。
-- 为什么需要 include guard：`add.h` 将来可能被多个头文件间接包含；重复的**声明**本身还好，但头文件里若有类型/变量的**定义**，重复就是编译错误。加哨兵一劳永逸（原理见 [[课程笔记/C语言/头文件include-尖括号与双引号的区别|头文件 include]] 第五节）。
+- 为什么需要 include guard：`add.h` 将来可能被多个头文件间接包含；重复的**声明**本身还好，但头文件里若有类型/变量的**定义**，重复就是编译错误。加哨兵一劳永逸（原理见 [[课程笔记/C语言/语言基础/头文件include-尖括号与双引号的区别|头文件 include]] 第五节）。
 
 ## 六、`add.c` 逐行（6 行）
 
@@ -258,7 +258,7 @@ gcc -Wall -Wextra -std=c11 main.o add.o -o main
 | 1 | `#include <stdio.h>` | 系统头，取 `printf` 的声明 → 尖括号。 |
 | 2 | `#include "add.h"` | 自己项目的头 → 双引号。有了它，编译器才认识 add 的调用方式。 |
 | 3 | （空行） | |
-| 4 | `int main(void)` | 程序入口；返回 int 是**退出码**，`void` 表示不收命令行参数（对比 [[课程笔记/C语言/命令行参数-argc与argv入门|argc/argv 写法]]）。 |
+| 4 | `int main(void)` | 程序入口；返回 int 是**退出码**，`void` 表示不收命令行参数（对比 [[课程笔记/C语言/语言基础/命令行参数-argc与argv入门|argc/argv 写法]]）。 |
 | 5 | `{` | |
 | 6 | `int a = 3;` | 局部变量 a，初值 3。 |
 | 7 | `int b = 5;` | 局部变量 b，初值 5。 |
