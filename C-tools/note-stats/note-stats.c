@@ -9,7 +9,7 @@ static int has_md_suffix(const char *name)
 {
     size_t len = strlen(name);
     return len >= 3 && strcmp(name + len - 3,".md") == 0;
-     // name + len - 3：指针算术——从首地址往后跳 len-3 格，正好落在最后 3 个字符上
+    // name + len - 3：指针算术——从首地址往后跳 len-3 格，正好落在最后 3 个字符上
     // strcmp 从那里比到结尾，比完恰好 3 个字符；返回 0 表示内容相同
     // len < 3 时 && 短路，直接得 0（假），避免越界读
 }
